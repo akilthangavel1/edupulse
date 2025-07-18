@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - {{ payment.enrollment.student.student_name }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; }
+        .receipt { max-width: 600px; margin: 20px auto; padding: 30px; border: 2px solid #2c3e50; }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #2c3e50; }
+        .header h1 { color: #2c3e50; font-size: 24px; margin-bottom: 10px; }
+        .header .subtitle { color: #7f8c8d; font-size: 16px; }
+        .payment-info { margin-bottom: 30px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding: 8px 0; border-bottom: 1px dotted #bdc3c7; }
+        .label { font-weight: bold; color: #34495e; }
+        .value { color: #2c3e50; }
+        .amount-section { background: #ecf0f1; padding: 20px; margin: 20px 0; border-radius: 5px; text-align: center; }
+        .amount { font-size: 32px; font-weight: bold; color: #27ae60; }
+        .currency { font-size: 18px; color: #7f8c8d; }
+        .footer { margin-top: 30px; text-align: center; color: #7f8c8d; font-style: italic; border-top: 1px solid #ecf0f1; padding-top: 20px; }
+        @media print { .no-print { display: none; } .receipt { border: 2px solid #000; } }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h1>EduPulse</h1>
+            <div class="subtitle">Payment Receipt</div>
+        </div>
+        
+        <div class="payment-info">
+            <div class="info-row">
+                <span class="label">Receipt Date:</span>
+                <span class="value">{{ receipt_date|date:"F d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Payment Date:</span>
+                <span class="value">{{ payment.payment_date|date:"F d, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Student Name:</span>
+                <span class="value">{{ payment.enrollment.student.student_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Student ID:</span>
+                <span class="value">{{ payment.enrollment.student.student_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Course:</span>
+                <span class="value">{{ payment.enrollment.course.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Course Code:</span>
+                <span class="value">{{ payment.enrollment.course.course_code }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Payment Method:</span>
+                <span class="value">{{ payment.get_payment_method_display }}</span>
+            </div>
+            {% if payment.reference_number %}
+            <div class="info-row">
+                <span class="label">Reference Number:</span>
+                <span class="value">{{ payment.reference_number }}</span>
+            </div>
+            {% endif %}
+            {% if payment.receipt_number %}
+            <div class="info-row">
+                <span class="label">Receipt Number:</span>
+                <span class="value">{{ payment.receipt_number }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="label">Payment Status:</span>
+                <span class="value">{{ payment.get_status_display }}</span>
+            </div>
+        </div>
+        
+        <div class="amount-section">
+            <div style="margin-bottom: 10px; color: #7f8c8d;">Amount Paid</div>
+            <div class="amount">{{ payment.amount }} <span class="currency">KWD</span></div>
+        </div>
+        
+        {% if payment.notes %}
+        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #3498db;">
+            <strong>Notes:</strong> {{ payment.notes }}
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p><strong>Thank you for your payment!</strong></p>
+            <p>This is an official receipt for your records.</p>
+            <p>Please keep this receipt for future reference.</p>
+        </div>
+    </div>
+    
+    <div class="no-print" style="text-align: center; margin: 20px;">
+        <button onclick="window.print()" style="background: #3498db; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            🖨️ Print Receipt
+        </button>
+        <button onclick="window.close()" style="background: #95a5a6; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            Close
+        </button>
+    </div>
+</body>
+</html> 

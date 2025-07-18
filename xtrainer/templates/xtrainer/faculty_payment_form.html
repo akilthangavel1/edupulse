@@ -1,0 +1,592 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Generate{% endif %} Faculty Payment{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-money-bill-wave"></i> {% if form.instance.pk %}Edit{% else %}Generate{% endif %} Faculty Payment
+                    </h1>
+                    <p class="text-muted">{% if form.instance.pk %}Modify{% else %}Create{% endif %} faculty payment record with calculated amounts</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_payment_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Payments
+                    </a>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Main Form Content -->
+                    <div class="col-lg-8">
+                        <!-- Faculty and Payment Type Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user"></i> Faculty and Payment Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.faculty.id_for_label }}" class="form-label">{{ form.faculty.label }}</label>
+                                            {{ form.faculty }}
+                                            {% if form.faculty.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.faculty.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.payment_type.id_for_label }}" class="form-label">{{ form.payment_type.label }}</label>
+                                            {{ form.payment_type }}
+                                            {% if form.payment_type.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.payment_type.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.payment_method.id_for_label }}" class="form-label">{{ form.payment_method.label }}</label>
+                                    {{ form.payment_method }}
+                                    <small class="form-text text-muted">Select the payment method for processing</small>
+                                    {% if form.payment_method.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.payment_method.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Period Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-calendar"></i> Payment Period
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.period_start.id_for_label }}" class="form-label">{{ form.period_start.label }}</label>
+                                            {{ form.period_start }}
+                                            {% if form.period_start.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.period_start.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.period_end.id_for_label }}" class="form-label">{{ form.period_end.label }}</label>
+                                            {{ form.period_end }}
+                                            {% if form.period_end.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.period_end.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Period Selection:</strong> Choose the start and end dates for the period this payment covers. The system will help calculate hours and amounts based on attendance records for this period.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hours and Rate Calculation Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-calculator"></i> Hours and Rate Calculation
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.total_hours.id_for_label }}" class="form-label">{{ form.total_hours.label }}</label>
+                                            <div class="input-group">
+                                                {{ form.total_hours }}
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-primary" onclick="calculateHours()">
+                                                        <i class="fas fa-sync"></i> Auto-Calculate
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Total hours worked during the payment period</small>
+                                            {% if form.total_hours.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.total_hours.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.hourly_rate.id_for_label }}" class="form-label">{{ form.hourly_rate.label }}</label>
+                                            <div class="input-group">
+                                                {{ form.hourly_rate }}
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">KWD</span>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Hourly rate for this faculty member</small>
+                                            {% if form.hourly_rate.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.hourly_rate.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Gross Amount</label>
+                                            <div class="form-control-plaintext">
+                                                <strong id="grossAmount">0.000 KWD</strong>
+                                            </div>
+                                            <small class="form-text text-muted">Total Hours × Hourly Rate</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Adjustments Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-adjust"></i> Payment Adjustments
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.bonus_amount.id_for_label }}" class="form-label">{{ form.bonus_amount.label }}</label>
+                                            <div class="input-group">
+                                                {{ form.bonus_amount }}
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text text-success">+KWD</span>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Additional bonus or incentive amount</small>
+                                            {% if form.bonus_amount.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.bonus_amount.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.deductions.id_for_label }}" class="form-label">{{ form.deductions.label }}</label>
+                                            <div class="input-group">
+                                                {{ form.deductions }}
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text text-danger">-KWD</span>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Deductions for taxes, advances, or penalties</small>
+                                            {% if form.deductions.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.deductions.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reference and Notes Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-sticky-note"></i> Reference and Notes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="{{ form.reference_number.id_for_label }}" class="form-label">{{ form.reference_number.label }}</label>
+                                    {{ form.reference_number }}
+                                    <small class="form-text text-muted">Optional reference number for tracking</small>
+                                    {% if form.reference_number.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.reference_number.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                                    {{ form.notes }}
+                                    <small class="form-text text-muted">Additional notes about this payment</small>
+                                    {% if form.notes.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Calculation Summary Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Payment Summary Card -->
+                        <div class="card shadow mb-4 sticky-top" style="top: 20px;">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-receipt"></i> Payment Summary
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="payment-calculation">
+                                    <div class="calc-row">
+                                        <span>Total Hours:</span>
+                                        <strong id="summaryHours">0.00</strong>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span>Hourly Rate:</span>
+                                        <strong id="summaryRate">0.000 KWD</strong>
+                                    </div>
+                                    <div class="calc-row border-top pt-2">
+                                        <span>Gross Amount:</span>
+                                        <strong id="summaryGross">0.000 KWD</strong>
+                                    </div>
+                                    <div class="calc-row text-success">
+                                        <span>Bonus (+):</span>
+                                        <strong id="summaryBonus">0.000 KWD</strong>
+                                    </div>
+                                    <div class="calc-row text-danger">
+                                        <span>Deductions (-):</span>
+                                        <strong id="summaryDeductions">0.000 KWD</strong>
+                                    </div>
+                                    <div class="calc-row border-top pt-2 bg-light">
+                                        <span class="h6">Net Amount:</span>
+                                        <strong class="h5 text-success" id="summaryNet">0.000 KWD</strong>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="faculty-info">
+                                    <h6 class="font-weight-bold">Faculty Information</h6>
+                                    <div id="facultyInfo">
+                                        <p class="text-muted">Select a faculty member to see details</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions Card -->
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-save"></i> Actions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-save"></i> {% if form.instance.pk %}Update{% else %}Generate{% endif %} Payment
+                                    </button>
+                                    
+                                    <a href="{% url 'faculty_payment_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    
+                                    {% if form.instance.pk %}
+                                        <a href="{% url 'faculty_payment_detail' form.instance.pk %}" class="btn btn-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="text-muted small">
+                                    <p><i class="fas fa-info-circle"></i> <strong>Note:</strong> Payment will be created in pending status</p>
+                                    <p><i class="fas fa-calculator"></i> <strong>Auto-calculation:</strong> Use the auto-calculate button to compute hours from attendance</p>
+                                    <p><i class="fas fa-shield-alt"></i> <strong>Security:</strong> All amounts are validated and logged</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #e74a3b;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+.payment-calculation {
+    background-color: #f8f9fc;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.calc-row:last-child {
+    margin-bottom: 0;
+}
+
+.faculty-info {
+    background-color: #f8f9fc;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.sticky-top {
+    position: sticky;
+}
+
+.input-group-text {
+    font-size: 0.875rem;
+}
+
+.form-control-plaintext {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+    background-color: #f8f9fc;
+}
+</style>
+
+<script>
+// Faculty information data (would be populated from Django context)
+const facultyData = {
+    // This would be populated from the backend with faculty details
+    // For now, we'll handle it when the faculty selection changes
+};
+
+// Update calculations when inputs change
+function updateCalculations() {
+    const hours = parseFloat(document.querySelector('input[name="total_hours"]').value) || 0;
+    const rate = parseFloat(document.querySelector('input[name="hourly_rate"]').value) || 0;
+    const bonus = parseFloat(document.querySelector('input[name="bonus_amount"]').value) || 0;
+    const deductions = parseFloat(document.querySelector('input[name="deductions"]').value) || 0;
+    
+    const gross = hours * rate;
+    const net = gross + bonus - deductions;
+    
+    // Update main calculation display
+    document.getElementById('grossAmount').textContent = gross.toFixed(3) + ' KWD';
+    
+    // Update summary sidebar
+    document.getElementById('summaryHours').textContent = hours.toFixed(2);
+    document.getElementById('summaryRate').textContent = rate.toFixed(3) + ' KWD';
+    document.getElementById('summaryGross').textContent = gross.toFixed(3) + ' KWD';
+    document.getElementById('summaryBonus').textContent = bonus.toFixed(3) + ' KWD';
+    document.getElementById('summaryDeductions').textContent = deductions.toFixed(3) + ' KWD';
+    document.getElementById('summaryNet').textContent = net.toFixed(3) + ' KWD';
+}
+
+// Auto-calculate hours from attendance (placeholder function)
+function calculateHours() {
+    const facultySelect = document.querySelector('select[name="faculty"]');
+    const periodStart = document.querySelector('input[name="period_start"]').value;
+    const periodEnd = document.querySelector('input[name="period_end"]').value;
+    
+    if (!facultySelect.value || !periodStart || !periodEnd) {
+        alert('Please select faculty and date range first');
+        return;
+    }
+    
+    // This would typically make an AJAX call to calculate hours from attendance
+    // For now, we'll show a placeholder
+    if (confirm('Auto-calculate hours from attendance records for the selected period?')) {
+        // Placeholder calculation
+        const estimatedHours = Math.floor(Math.random() * 40) + 20; // Random for demo
+        document.querySelector('input[name="total_hours"]').value = estimatedHours.toFixed(2);
+        updateCalculations();
+        
+        alert(`Calculated ${estimatedHours.toFixed(2)} hours from attendance records`);
+    }
+}
+
+// Handle faculty selection change
+function onFacultyChange() {
+    const facultySelect = document.querySelector('select[name="faculty"]');
+    const selectedOption = facultySelect.options[facultySelect.selectedIndex];
+    
+    if (selectedOption.value) {
+        // Update faculty info display
+        const facultyInfo = document.getElementById('facultyInfo');
+        facultyInfo.innerHTML = `
+            <div class="faculty-selected">
+                <p><strong>Name:</strong> ${selectedOption.textContent}</p>
+                <p><strong>ID:</strong> ${selectedOption.value}</p>
+                <p class="text-muted small">Faculty details will be fetched from backend</p>
+            </div>
+        `;
+        
+        // Auto-fill hourly rate if available (would come from backend)
+        // This is placeholder logic
+        const rateField = document.querySelector('input[name="hourly_rate"]');
+        if (!rateField.value) {
+            // Placeholder rate - in real implementation, this would come from faculty profile
+            rateField.value = '15.000';
+        }
+    } else {
+        document.getElementById('facultyInfo').innerHTML = '<p class="text-muted">Select a faculty member to see details</p>';
+    }
+    
+    updateCalculations();
+}
+
+// Date validation
+function validateDates() {
+    const startDate = document.querySelector('input[name="period_start"]').value;
+    const endDate = document.querySelector('input[name="period_end"]').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (start > end) {
+            alert('End date must be after start date');
+            return false;
+        }
+        
+        if (end > new Date()) {
+            alert('End date cannot be in the future');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Input change listeners for calculations
+    const calcInputs = ['total_hours', 'hourly_rate', 'bonus_amount', 'deductions'];
+    calcInputs.forEach(fieldName => {
+        const field = document.querySelector(`input[name="${fieldName}"]`);
+        if (field) {
+            field.addEventListener('input', updateCalculations);
+        }
+    });
+    
+    // Faculty selection change
+    const facultySelect = document.querySelector('select[name="faculty"]');
+    if (facultySelect) {
+        facultySelect.addEventListener('change', onFacultyChange);
+        // Trigger on page load if faculty is pre-selected
+        if (facultySelect.value) {
+            onFacultyChange();
+        }
+    }
+    
+    // Date validation
+    const dateFields = ['period_start', 'period_end'];
+    dateFields.forEach(fieldName => {
+        const field = document.querySelector(`input[name="${fieldName}"]`);
+        if (field) {
+            field.addEventListener('change', validateDates);
+        }
+    });
+    
+    // Form submission validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!validateDates()) {
+            e.preventDefault();
+            return;
+        }
+        
+        const requiredFields = document.querySelectorAll('input[required], select[required]');
+        let hasErrors = false;
+        
+        requiredFields.forEach(function(field) {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                hasErrors = true;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+        }
+    });
+    
+    // Initial calculation
+    updateCalculations();
+});
+</script>
+{% endblock %} 

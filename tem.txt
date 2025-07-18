@@ -1,0 +1,3 @@
+mkdir -p media/student_photos
+python manage.py create_dummy_students --count 30
+python manage.py create_dummy_attendance --days 21

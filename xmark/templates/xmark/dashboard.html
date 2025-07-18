@@ -1,0 +1,165 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Mark Entry Dashboard{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group">
+        <a href="{% url 'mark_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Add Mark
+        </a>
+        <a href="{% url 'bulk_mark_entry' %}" class="btn btn-success">
+            <i class="bi bi-plus-square"></i> Bulk Entry
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Total Subjects</div>
+                            <div class="h2 fw-bold">{{ total_subjects }}</div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-book fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'subject_list' %}">View Subjects</a>
+                    <div class="small text-white"><i class="bi bi-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Active Students</div>
+                            <div class="h2 fw-bold">{{ total_students }}</div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Total Marks</div>
+                            <div class="h2 fw-bold">{{ total_marks }}</div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-journal-text fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'mark_list' %}">View All Marks</a>
+                    <div class="small text-white"><i class="bi bi-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Pending Marks</div>
+                            <div class="h2 fw-bold">{{ pending_marks }}</div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-clock fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="{% url 'mark_list' %}?status=draft">View Pending</a>
+                    <div class="small text-white"><i class="bi bi-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Marks -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-clock-history me-1"></i>
+                    Recent Mark Entries
+                </div>
+                <div class="card-body">
+                    {% if recent_marks %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Subject</th>
+                                        <th>Assessment</th>
+                                        <th>Marks</th>
+                                        <th>Grade</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mark in recent_marks %}
+                                        <tr>
+                                            <td>{{ mark.student.student_name }}</td>
+                                            <td>{{ mark.subject.code }}</td>
+                                            <td>{{ mark.assessment_type.name }}</td>
+                                            <td>
+                                                {{ mark.marks_obtained }}/{{ mark.total_marks }}
+                                                <small class="text-muted">({{ mark.percentage|floatformat:1 }}%)</small>
+                                            </td>
+                                            <td>
+                                                {% if mark.grade %}
+                                                    <span class="badge bg-info grade-badge">{{ mark.grade }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary status-badge">
+                                                    {{ mark.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>{{ mark.assessment_date|date:"M d, Y" }}</small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center">
+                            <a href="{% url 'mark_list' %}" class="btn btn-outline-primary">View All Marks</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-journal-x fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No marks entered yet.</p>
+                            <a href="{% url 'mark_create' %}" class="btn btn-primary">Add First Mark</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

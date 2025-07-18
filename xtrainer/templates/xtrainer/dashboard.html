@@ -1,0 +1,374 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Faculty Management Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-chalkboard-teacher"></i> Faculty Management Dashboard
+                    </h1>
+                    <p class="text-muted">Manage faculty, onboarding, leave requests, and payments</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="quickActions" data-bs-toggle="dropdown">
+                        <i class="fas fa-plus"></i> Quick Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'faculty_create' %}">
+                            <i class="fas fa-user-plus"></i> Add New Faculty
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'faculty_leave_request_create' %}">
+                            <i class="fas fa-calendar-alt"></i> Create Leave Request
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'backup_schedule_create' %}">
+                            <i class="fas fa-users"></i> Schedule Backup
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'exam_request_create' %}">
+                            <i class="fas fa-file-alt"></i> Create Exam Request
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'faculty_payment_create' %}">
+                            <i class="fas fa-money-bill"></i> Generate Payment
+                        </a></li>TemplateDoesNotExist at /faculty/
+                        xtrainer/dashboard.html
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Active Faculty
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_faculty }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'faculty_list' %}" class="small text-primary">View All Faculty <i class="fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Pending Onboarding
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_onboarding }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'faculty_onboarding_list' %}?status=pending" class="small text-warning">Review Requests <i class="fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Pending Leave Requests
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_leave_requests }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar-times fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'faculty_leave_request_list' %}?status=pending" class="small text-info">Review Requests <i class="fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Pending Exam Requests
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_exam_requests }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{% url 'exam_request_list' %}?status=pending" class="small text-success">Review Requests <i class="fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Row -->
+            <div class="row">
+                <!-- Recent Activities Column -->
+                <div class="col-lg-8">
+                    <!-- Recent Onboarding Requests -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-user-plus"></i> Recent Onboarding Requests
+                            </h6>
+                            <a href="{% url 'faculty_onboarding_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_onboarding %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Request ID</th>
+                                                <th>Name</th>
+                                                <th>Specialization</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for request in recent_onboarding %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'faculty_onboarding_detail' request.pk %}" class="text-decoration-none">
+                                                        {{ request.request_id }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ request.first_name }} {{ request.last_name }}</td>
+                                                <td>{{ request.specialization|truncatechars:30 }}</td>
+                                                <td>
+                                                    <span class="badge badge-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                                        {{ request.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ request.application_date|date:"M d, Y" }}</td>
+                                                <td>
+                                                    <a href="{% url 'faculty_onboarding_detail' request.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No recent onboarding requests</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Recent Leave Requests -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-warning">
+                                <i class="fas fa-calendar-alt"></i> Recent Leave Requests
+                            </h6>
+                            <a href="{% url 'faculty_leave_request_list' %}" class="btn btn-sm btn-outline-warning">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_leave_requests %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Request ID</th>
+                                                <th>Faculty</th>
+                                                <th>Type</th>
+                                                <th>Duration</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for request in recent_leave_requests %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'faculty_leave_request_detail' request.pk %}" class="text-decoration-none">
+                                                        {{ request.request_id }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ request.faculty.get_full_name }}</td>
+                                                <td>{{ request.get_request_type_display }}</td>
+                                                <td>{{ request.start_date|date:"M d" }} - {{ request.end_date|date:"M d" }}</td>
+                                                <td>
+                                                    <span class="badge badge-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% elif request.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                                        {{ request.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'faculty_leave_request_detail' request.pk %}" class="btn btn-sm btn-outline-warning">View</a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No recent leave requests</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="col-lg-4">
+                    <!-- Employment Statistics -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-pie"></i> Faculty by Employment Type
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if employment_stats %}
+                                {% for stat in employment_stats %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-capitalize">{{ stat.employment_type|default:"Other" }}</span>
+                                    <span class="badge badge-primary">{{ stat.count }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No employment data available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Backup Schedules -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-info">
+                                <i class="fas fa-users"></i> Upcoming Backups
+                            </h6>
+                            <a href="{% url 'backup_schedule_list' %}" class="btn btn-sm btn-outline-info">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if upcoming_backups %}
+                                {% for backup in upcoming_backups %}
+                                <div class="d-flex justify-content-between align-items-start mb-3 p-2 border-left border-info">
+                                    <div>
+                                        <div class="font-weight-bold text-sm">{{ backup.course.name }}</div>
+                                        <div class="text-muted small">
+                                            {{ backup.backup_faculty.get_full_name }}
+                                            <br>
+                                            for {{ backup.original_faculty.get_full_name }}
+                                        </div>
+                                        <div class="text-info small">
+                                            {{ backup.date|date:"M d, Y" }} at {{ backup.start_time }}
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-{% if backup.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                                        {{ backup.get_status_display }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No upcoming backup schedules</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Monthly Payment Summary -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-success">
+                                <i class="fas fa-dollar-sign"></i> Monthly Payment Summary
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if monthly_payment_stats.payment_count %}
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="h4 text-success">{{ monthly_payment_stats.total_amount|floatformat:3 }}</div>
+                                        <div class="small text-muted">Total Amount (KWD)</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="h4 text-info">{{ monthly_payment_stats.total_hours|floatformat:1 }}</div>
+                                        <div class="small text-muted">Total Hours</div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <span class="badge badge-success">{{ monthly_payment_stats.payment_count }} Payments</span>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center">No payment data for this month</p>
+                            {% endif %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'faculty_payment_list' %}" class="btn btn-sm btn-outline-success">View All Payments</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-secondary">
+                                <i class="fas fa-link"></i> Quick Links
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                <a href="{% url 'faculty_attendance_report' %}" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-chart-line"></i> Attendance Reports
+                                </a>
+                                <a href="{% url 'faculty_onboarding_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-user-check"></i> Onboarding Management
+                                </a>
+                                <a href="{% url 'backup_schedule_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-calendar"></i> Backup Schedules
+                                </a>
+                                <a href="{% url 'exam_request_list' %}" class="list-group-item list-group-item-action">
+                                    <i class="fas fa-file-alt"></i> Exam Requests
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+    .border-left {
+        border-left: 0.25rem solid #e3e6f0 !important;
+    }
+</style>
+{% endblock %} 

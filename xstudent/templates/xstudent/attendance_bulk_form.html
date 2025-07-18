@@ -1,0 +1,303 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Bulk Attendance Entry - EduPulse{% endblock %}
+
+{% block header %}Bulk Attendance Entry{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+    <a href="{% url 'attendance_create' %}" class="btn btn-outline-primary">
+        <i class="fas fa-user"></i> Individual Entry
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Filter Form -->
+        <div class="card search-box mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-filter"></i> Filter Students & Set Defaults
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-2">
+                        {{ form.date.label_tag }}
+                        {{ form.date }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.grade.label_tag }}
+                        {{ form.grade }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.program.label_tag }}
+                        {{ form.program }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.default_status.label_tag }}
+                        {{ form.default_status }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.default_time_in.label_tag }}
+                        {{ form.default_time_in }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Filter & Load
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bulk Attendance Form -->
+        {% if students %}
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-users"></i> Record Attendance for {{ students.count }} Students
+                </h5>
+                <div>
+                    <button type="button" class="btn btn-sm btn-success me-1" onclick="setAllStatus('present')">
+                        <i class="fas fa-check"></i> All Present
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger me-1" onclick="setAllStatus('absent')">
+                        <i class="fas fa-times"></i> All Absent
+                    </button>
+                    <button type="button" class="btn btn-sm btn-warning" onclick="setAllStatus('late')">
+                        <i class="fas fa-clock"></i> All Late
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="bulkAttendanceForm">
+                    {% csrf_token %}
+                    
+                    <!-- Hidden fields for form data -->
+                    <input type="hidden" name="date" value="{{ form.date.value|default_if_none:'' }}">
+                    <input type="hidden" name="grade" value="{{ form.grade.value|default_if_none:'' }}">
+                    <input type="hidden" name="program" value="{{ form.program.value|default_if_none:'' }}">
+                    <input type="hidden" name="default_status" value="{{ form.default_status.value|default:'present' }}">
+                    <input type="hidden" name="default_time_in" value="{{ form.default_time_in.value|default_if_none:'' }}">
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 5%;">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
+                                    </th>
+                                    <th style="width: 25%;">Student</th>
+                                    <th style="width: 10%;">Grade</th>
+                                    <th style="width: 15%;">Program</th>
+                                    <th style="width: 15%;">Status</th>
+                                    <th style="width: 12%;">Time In</th>
+                                    <th style="width: 18%;">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected_students" value="{{ student.id }}" class="form-check-input student-checkbox" checked>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if student.student_profile_picture %}
+                                                <img src="{{ student.student_profile_picture.url }}" 
+                                                     alt="{{ student.student_name }}" 
+                                                     class="rounded-circle me-2" 
+                                                     style="width: 32px; height: 32px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ student.student_name }}</strong><br>
+                                                <small class="text-muted">{{ student.email_id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.grade }}</td>
+                                    <td>{{ student.program }}</td>
+                                    <td>
+                                        <select name="status_{{ student.id }}" class="form-select form-select-sm status-select">
+                                            <option value="present" {% if form.default_status.value == 'present' %}selected{% endif %}>Present</option>
+                                            <option value="absent" {% if form.default_status.value == 'absent' %}selected{% endif %}>Absent</option>
+                                            <option value="late" {% if form.default_status.value == 'late' %}selected{% endif %}>Late</option>
+                                            <option value="excused" {% if form.default_status.value == 'excused' %}selected{% endif %}>Excused</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="time" name="time_in_{{ student.id }}" 
+                                               class="form-control form-control-sm time-input"
+                                               value="{{ form.default_time_in.value|default_if_none:'' }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="notes_{{ student.id }}" 
+                                               class="form-control form-control-sm" 
+                                               placeholder="Optional notes...">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div>
+                            <span class="text-muted">
+                                <span id="selectedCount">{{ students.count }}</span> students selected
+                            </span>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-secondary me-2" onclick="window.location.href='{% url 'attendance_list' %}'">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Record Attendance
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <!-- No Students Found -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Students Found</h5>
+                <p class="text-muted">
+                    {% if request.GET.grade or request.GET.program %}
+                        No active students match your filter criteria. Try adjusting the filters above.
+                    {% else %}
+                        No active students found. Make sure you have students registered in the system.
+                    {% endif %}
+                </p>
+                <a href="{% url 'student_create' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Register New Student
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tips Card -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb"></i> Tips for Bulk Attendance
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Quick Actions:</h6>
+                        <ul class="mb-0">
+                            <li>Use "All Present/Absent/Late" buttons to set status for all students</li>
+                            <li>Select/deselect individual students using checkboxes</li>
+                            <li>Use filters to narrow down students by grade or program</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Best Practices:</h6>
+                        <ul class="mb-0">
+                            <li>Record attendance daily for accurate tracking</li>
+                            <li>Add notes for absent students when possible</li>
+                            <li>Verify the date before submitting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Select all functionality
+    $('#selectAll').change(function() {
+        $('.student-checkbox').prop('checked', $(this).is(':checked'));
+        updateSelectedCount();
+    });
+    
+    $('.student-checkbox').change(function() {
+        updateSelectedCount();
+        
+        // Update select all checkbox
+        var totalCheckboxes = $('.student-checkbox').length;
+        var checkedCheckboxes = $('.student-checkbox:checked').length;
+        $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+    });
+    
+    // Update selected count
+    function updateSelectedCount() {
+        var count = $('.student-checkbox:checked').length;
+        $('#selectedCount').text(count);
+    }
+    
+    // Auto-fill time when status changes to present
+    $('.status-select').change(function() {
+        var row = $(this).closest('tr');
+        var timeInput = row.find('.time-input');
+        
+        if ($(this).val() === 'present' && !timeInput.val()) {
+            var now = new Date();
+            var timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+            timeInput.val(timeString);
+        }
+    });
+    
+    // Form submission validation
+    $('#bulkAttendanceForm').submit(function(e) {
+        var selectedStudents = $('.student-checkbox:checked').length;
+        if (selectedStudents === 0) {
+            e.preventDefault();
+            alert('Please select at least one student to record attendance for.');
+            return false;
+        }
+        
+        // Confirm submission
+        if (!confirm('Record attendance for ' + selectedStudents + ' selected students?')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+
+// Set all students to a specific status
+function setAllStatus(status) {
+    $('.student-checkbox:checked').each(function() {
+        var row = $(this).closest('tr');
+        var statusSelect = row.find('.status-select');
+        var timeInput = row.find('.time-input');
+        
+        statusSelect.val(status);
+        
+        // Auto-fill time for present status
+        if (status === 'present' && !timeInput.val()) {
+            var now = new Date();
+            var timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+            timeInput.val(timeString);
+        }
+    });
+}
+</script>
+{% endblock %} 

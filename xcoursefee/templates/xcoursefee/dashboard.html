@@ -1,0 +1,443 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Course Fee Dashboard - EduPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .stat-card.primary { border-left-color: #007bff; }
+    .stat-card.success { border-left-color: #28a745; }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.danger { border-left-color: #dc3545; }
+    .stat-card.info { border-left-color: #17a2b8; }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .payment-method-chart {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .overdue-badge {
+        background-color: #dc3545;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    
+    .quick-action-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-dollar-sign text-primary me-2"></i>
+                        Course Fee Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Manage course fees, payments, and financial reports</p>
+                </div>
+                <div>
+                    <span class="text-muted">{{ today|date:"F d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <!-- Total Courses -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card primary">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Active Courses
+                        </div>
+                        <div class="stat-number text-primary">{{ stats.total_courses }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Enrollments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card success">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Active Enrollments
+                        </div>
+                        <div class="stat-number text-success">{{ stats.total_enrollments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card info">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total Revenue
+                        </div>
+                        <div class="stat-number text-info">{{ financial_stats.total_revenue }} KWD</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-coins fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card warning">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Monthly Revenue
+                        </div>
+                        <div class="stat-number text-warning">{{ financial_stats.monthly_revenue }} KWD</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row of Statistics -->
+    <div class="row mb-4">
+        <!-- Pending Payments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card danger">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Pending Payments
+                        </div>
+                        <div class="stat-number text-danger">{{ financial_stats.pending_payments }} KWD</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outstanding Invoices -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card warning">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Outstanding Invoices
+                        </div>
+                        <div class="stat-number text-warning">{{ financial_stats.outstanding_invoices }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-invoice fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Spots -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card info">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Available Spots
+                        </div>
+                        <div class="stat-number text-info">{{ stats.available_spots }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chair fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Students -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card primary">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Students
+                        </div>
+                        <div class="stat-number text-primary">{{ stats.total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Activities Column -->
+        <div class="col-lg-8">
+            <!-- Recent Enrollments -->
+            <div class="recent-activity mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus text-success me-2"></i>
+                        Recent Enrollments
+                    </h5>
+                    <a href="{% url 'enrollment_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                {% if recent_enrollments %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for enrollment in recent_enrollments %}
+                                <tr>
+                                    <td>{{ enrollment.student.student_name }}</td>
+                                    <td>{{ enrollment.course.name }}</td>
+                                    <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if enrollment.status == 'active' %}success{% elif enrollment.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                            {{ enrollment.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent enrollments found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="recent-activity mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                        Recent Payments
+                    </h5>
+                    <a href="{% url 'payment_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                {% if recent_payments %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payments %}
+                                <tr>
+                                    <td>{{ payment.enrollment.student.student_name }}</td>
+                                    <td>{{ payment.enrollment.course.name }}</td>
+                                    <td class="text-success font-weight-bold">{{ payment.amount }} KWD</td>
+                                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                    <td>{{ payment.get_payment_method_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent payments found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Overdue Invoices -->
+            {% if overdue_invoices %}
+            <div class="recent-activity">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                        Overdue Invoices
+                    </h5>
+                    <a href="{% url 'invoice_list' %}?status=overdue" class="btn btn-sm btn-outline-danger">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Student</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in overdue_invoices %}
+                            <tr>
+                                <td>{{ invoice.invoice_number }}</td>
+                                <td>{{ invoice.enrollment.student.student_name }}</td>
+                                <td class="text-danger font-weight-bold">{{ invoice.total_amount }} KWD</td>
+                                <td>{{ invoice.due_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="overdue-badge">
+                                        {{ invoice.due_date|timesince }} ago
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="recent-activity mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-bolt text-primary me-2"></i>
+                    Quick Actions
+                </h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'course_create' %}" class="btn btn-primary quick-action-btn">
+                        <i class="fas fa-plus me-2"></i>Add New Course
+                    </a>
+                    <a href="{% url 'enrollment_create' %}" class="btn btn-success quick-action-btn">
+                        <i class="fas fa-user-plus me-2"></i>Enroll Student
+                    </a>
+                    <a href="{% url 'payment_create' %}" class="btn btn-info quick-action-btn">
+                        <i class="fas fa-credit-card me-2"></i>Record Payment
+                    </a>
+                    <a href="{% url 'invoice_create' %}" class="btn btn-warning quick-action-btn">
+                        <i class="fas fa-file-invoice me-2"></i>Create Invoice
+                    </a>
+                    <a href="{% url 'financial_report' %}" class="btn btn-secondary quick-action-btn">
+                        <i class="fas fa-chart-bar me-2"></i>Financial Report
+                    </a>
+                </div>
+            </div>
+
+            <!-- Popular Courses -->
+            <div class="recent-activity mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    Popular Courses
+                </h5>
+                {% if popular_courses %}
+                    {% for course in popular_courses %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                        <div>
+                            <div class="font-weight-bold">{{ course.name }}</div>
+                            <small class="text-muted">{{ course.course_code }}</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-weight-bold text-primary">{{ course.enrollment_count }}</div>
+                            <small class="text-muted">students</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No course data available.</p>
+                {% endif %}
+            </div>
+
+            <!-- Payment Methods -->
+            {% if payment_methods %}
+            <div class="payment-method-chart">
+                <h5 class="mb-3">
+                    <i class="fas fa-credit-card text-info me-2"></i>
+                    Payment Methods
+                </h5>
+                {% for method in payment_methods %}
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div>
+                        <div class="font-weight-bold">{{ method.payment_method|title }}</div>
+                        <small class="text-muted">{{ method.count }} transactions</small>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-weight-bold text-success">{{ method.total }} KWD</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh every 5 minutes
+    setTimeout(function() {
+        location.reload();
+    }, 300000);
+    
+    // Add hover effects to stat cards
+    document.querySelectorAll('.stat-card').forEach(function(card) {
+        card.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        });
+    });
+});
+</script>
+{% endblock %} 

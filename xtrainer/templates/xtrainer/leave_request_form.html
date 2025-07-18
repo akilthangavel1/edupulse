@@ -1,0 +1,444 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Faculty Leave Request{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-calendar-times"></i> Faculty Leave Request
+                    </h1>
+                    <p class="text-muted">Submit a leave request for approval</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_leave_request_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Leave Request Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Main Form Content -->
+                    <div class="col-lg-8">
+                        <!-- Request Information Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-info-circle"></i> Request Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.faculty.id_for_label }}" class="form-label">{{ form.faculty.label }}</label>
+                                            {{ form.faculty }}
+                                            {% if form.faculty.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.faculty.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.request_type.id_for_label }}" class="form-label">{{ form.request_type.label }}</label>
+                                            {{ form.request_type }}
+                                            {% if form.request_type.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.request_type.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }}</label>
+                                    {{ form.priority }}
+                                    <small class="form-text text-muted">Select 'Urgent' for emergency situations requiring immediate attention</small>
+                                    {% if form.priority.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.reason.id_for_label }}" class="form-label">{{ form.reason.label }}</label>
+                                    {{ form.reason }}
+                                    <small class="form-text text-muted">Please provide a detailed reason for your leave request</small>
+                                    {% if form.reason.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.reason.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date and Time Information Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-calendar"></i> Date and Time Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.start_date.id_for_label }}" class="form-label">{{ form.start_date.label }}</label>
+                                            {{ form.start_date }}
+                                            {% if form.start_date.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.start_date.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.end_date.id_for_label }}" class="form-label">{{ form.end_date.label }}</label>
+                                            {{ form.end_date }}
+                                            {% if form.end_date.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.end_date.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.start_time.id_for_label }}" class="form-label">{{ form.start_time.label }}</label>
+                                            {{ form.start_time }}
+                                            <small class="form-text text-muted">Optional - for partial day leave</small>
+                                            {% if form.start_time.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.start_time.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.end_time.id_for_label }}" class="form-label">{{ form.end_time.label }}</label>
+                                            {{ form.end_time }}
+                                            <small class="form-text text-muted">Optional - for partial day leave</small>
+                                            {% if form.end_time.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.end_time.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Affected Courses and Classes Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-book"></i> Affected Courses and Classes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="{{ form.affected_courses.id_for_label }}" class="form-label">{{ form.affected_courses.label }}</label>
+                                    {{ form.affected_courses }}
+                                    <small class="form-text text-muted">Select all courses that will be affected by this leave</small>
+                                    {% if form.affected_courses.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.affected_courses.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.affected_batches.id_for_label }}" class="form-label">{{ form.affected_batches.label }}</label>
+                                    {{ form.affected_batches }}
+                                    <small class="form-text text-muted">List specific batches, classes, or sessions that will be affected</small>
+                                    {% if form.affected_batches.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.affected_batches.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backup Arrangements Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user-friends"></i> Backup Arrangements
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    {{ form.backup_required }}
+                                    <label class="form-check-label" for="{{ form.backup_required.id_for_label }}">
+                                        {{ form.backup_required.label }}
+                                    </label>
+                                    <small class="form-text text-muted d-block">Check if you need a backup faculty to cover your classes</small>
+                                    {% if form.backup_required.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.backup_required.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.suggested_backup.id_for_label }}" class="form-label">{{ form.suggested_backup.label }}</label>
+                                    {{ form.suggested_backup }}
+                                    <small class="form-text text-muted">Optional - suggest a specific faculty member to cover your classes</small>
+                                    {% if form.suggested_backup.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.suggested_backup.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.backup_notes.id_for_label }}" class="form-label">{{ form.backup_notes.label }}</label>
+                                    {{ form.backup_notes }}
+                                    <small class="form-text text-muted">Provide details about backup arrangements, class materials, or special instructions</small>
+                                    {% if form.backup_notes.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.backup_notes.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Guidelines and Actions Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Guidelines Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-clipboard-list"></i> Leave Request Guidelines
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="guidelines">
+                                    <h6 class="font-weight-bold">Request Requirements:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check text-success"></i> Submit at least 48 hours in advance</li>
+                                        <li><i class="fas fa-check text-success"></i> Provide detailed reason</li>
+                                        <li><i class="fas fa-check text-success"></i> List affected courses/classes</li>
+                                        <li><i class="fas fa-check text-success"></i> Arrange backup if needed</li>
+                                    </ul>
+                                    
+                                    <h6 class="font-weight-bold mt-3">Request Types:</h6>
+                                    <ul class="list-unstyled small">
+                                        <li><strong>Leave Request:</strong> Regular planned leave</li>
+                                        <li><strong>Emergency Leave:</strong> Unexpected situations</li>
+                                        <li><strong>Sick Leave:</strong> Health-related absence</li>
+                                        <li><strong>Vacation:</strong> Personal vacation time</li>
+                                        <li><strong>Batch Time Change:</strong> Schedule modification</li>
+                                    </ul>
+                                    
+                                    <h6 class="font-weight-bold mt-3">Priority Levels:</h6>
+                                    <ul class="list-unstyled small">
+                                        <li><span class="badge badge-secondary">Low:</span> Regular requests</li>
+                                        <li><span class="badge badge-info">Medium:</span> Standard priority</li>
+                                        <li><span class="badge badge-warning">High:</span> Important requests</li>
+                                        <li><span class="badge badge-danger">Urgent:</span> Emergency situations</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions Card -->
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Request
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane"></i> Submit Leave Request
+                                    </button>
+                                    
+                                    <a href="{% url 'faculty_leave_request_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="text-muted small">
+                                    <p><i class="fas fa-info-circle"></i> <strong>Processing Time:</strong> Leave requests are typically reviewed within 24-48 hours</p>
+                                    <p><i class="fas fa-bell"></i> <strong>Notifications:</strong> You'll receive email updates on request status</p>
+                                    <p><i class="fas fa-shield-alt"></i> <strong>Privacy:</strong> Request details are confidential and secure</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #e74a3b;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+.guidelines li {
+    margin-bottom: 5px;
+}
+
+.guidelines li i {
+    margin-right: 8px;
+    width: 16px;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.form-check-input {
+    margin-top: 0.3rem;
+}
+
+.form-check-label {
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+</style>
+
+<script>
+// Form validation and dynamic behavior
+document.addEventListener('DOMContentLoaded', function() {
+    const backupRequiredCheckbox = document.querySelector('input[name="backup_required"]');
+    const suggestedBackupField = document.querySelector('select[name="suggested_backup"]');
+    const backupNotesField = document.querySelector('textarea[name="backup_notes"]');
+    
+    // Toggle backup fields based on backup required checkbox
+    function toggleBackupFields() {
+        const isBackupRequired = backupRequiredCheckbox.checked;
+        
+        if (suggestedBackupField) {
+            suggestedBackupField.disabled = !isBackupRequired;
+            if (!isBackupRequired) {
+                suggestedBackupField.value = '';
+            }
+        }
+        
+        if (backupNotesField) {
+            backupNotesField.disabled = !isBackupRequired;
+            if (!isBackupRequired) {
+                backupNotesField.value = '';
+            }
+        }
+    }
+    
+    if (backupRequiredCheckbox) {
+        backupRequiredCheckbox.addEventListener('change', toggleBackupFields);
+        // Initialize on page load
+        toggleBackupFields();
+    }
+    
+    // Date validation
+    const startDateField = document.querySelector('input[name="start_date"]');
+    const endDateField = document.querySelector('input[name="end_date"]');
+    
+    function validateDates() {
+        if (startDateField && endDateField && startDateField.value && endDateField.value) {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+            
+            if (startDate > endDate) {
+                endDateField.setCustomValidity('End date must be after start date');
+            } else {
+                endDateField.setCustomValidity('');
+            }
+        }
+    }
+    
+    if (startDateField && endDateField) {
+        startDateField.addEventListener('change', validateDates);
+        endDateField.addEventListener('change', validateDates);
+    }
+    
+    // Form submission validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+        let hasErrors = false;
+        
+        requiredFields.forEach(function(field) {
+            if (!field.value.trim() && !field.disabled) {
+                field.classList.add('is-invalid');
+                hasErrors = true;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+        }
+    });
+});
+</script>
+{% endblock %} 

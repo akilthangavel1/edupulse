@@ -1,0 +1,416 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{% if course %}Edit Course{% else %}Add New Course{% endif %} - EduPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+    .form-section h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #007bff;
+    }
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+    .form-help {
+        background: #e7f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .preview-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-{% if course %}edit{% else %}plus{% endif %} text-primary me-2"></i>
+                        {% if course %}Edit Course: {{ course.name }}{% else %}Add New Course{% endif %}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if course %}Update course information and settings{% else %}Create a new course offering{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <a href="{% url 'course_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Courses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="post" id="courseForm">
+            {% csrf_token %}
+            
+            <!-- Form Help -->
+            <div class="form-help">
+                <i class="fas fa-info-circle text-info me-2"></i>
+                <strong>Course Information:</strong> Fill in all required fields marked with an asterisk (*). 
+                Make sure the course code is unique and follows your institution's format.
+            </div>
+
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    Basic Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label required-field">
+                                {{ form.name.label }}
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.course_code.id_for_label }}" class="form-label required-field">
+                                {{ form.course_code.label }}
+                            </label>
+                            {{ form.course_code }}
+                            {% if form.course_code.errors %}
+                                <div class="text-danger small">{{ form.course_code.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.course_type.id_for_label }}" class="form-label required-field">
+                                {{ form.course_type.label }}
+                            </label>
+                            {{ form.course_type }}
+                            {% if form.course_type.errors %}
+                                <div class="text-danger small">{{ form.course_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label required-field">
+                                {{ form.status.label }}
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger small">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.instructor_name.id_for_label }}" class="form-label">
+                        {{ form.instructor_name.label }}
+                    </label>
+                    {{ form.instructor_name }}
+                    {% if form.instructor_name.errors %}
+                        <div class="text-danger small">{{ form.instructor_name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Duration & Scheduling Section -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-calendar text-primary me-2"></i>
+                    Duration & Scheduling
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.duration.id_for_label }}" class="form-label required-field">
+                                {{ form.duration.label }}
+                            </label>
+                            {{ form.duration }}
+                            {% if form.duration.errors %}
+                                <div class="text-danger small">{{ form.duration.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.duration_unit.id_for_label }}" class="form-label required-field">
+                                {{ form.duration_unit.label }}
+                            </label>
+                            {{ form.duration_unit }}
+                            {% if form.duration_unit.errors %}
+                                <div class="text-danger small">{{ form.duration_unit.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                {{ form.start_date.label }}
+                            </label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <div class="text-danger small">{{ form.start_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                {{ form.end_date.label }}
+                            </label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="text-danger small">{{ form.end_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capacity & Requirements Section -->
+            <div class="form-section">
+                <h5>
+                    <i class="fas fa-users text-primary me-2"></i>
+                    Capacity & Requirements
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.max_students.id_for_label }}" class="form-label required-field">
+                                {{ form.max_students.label }}
+                            </label>
+                            {{ form.max_students }}
+                            {% if form.max_students.errors %}
+                                <div class="text-danger small">{{ form.max_students.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.min_age.id_for_label }}" class="form-label">
+                                {{ form.min_age.label }}
+                            </label>
+                            {{ form.min_age }}
+                            {% if form.min_age.errors %}
+                                <div class="text-danger small">{{ form.min_age.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.max_age.id_for_label }}" class="form-label">
+                                {{ form.max_age.label }}
+                            </label>
+                            {{ form.max_age }}
+                            {% if form.max_age.errors %}
+                                <div class="text-danger small">{{ form.max_age.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.prerequisites.id_for_label }}" class="form-label">
+                        {{ form.prerequisites.label }}
+                    </label>
+                    {{ form.prerequisites }}
+                    {% if form.prerequisites.errors %}
+                        <div class="text-danger small">{{ form.prerequisites.errors }}</div>
+                    {% endif %}
+                    <div class="form-text">Enter any prerequisites or requirements for this course.</div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-card" id="coursePreview" style="display: none;">
+                <h6 class="text-primary">
+                    <i class="fas fa-eye me-2"></i>Course Preview
+                </h6>
+                <div id="previewContent"></div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div>
+                    <button type="button" class="btn btn-outline-info" onclick="togglePreview()">
+                        <i class="fas fa-eye me-2"></i>Preview Course
+                    </button>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'course_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        {% if course %}Update Course{% else %}Create Course{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.getElementById('courseForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+        submitBtn.disabled = true;
+    });
+
+    // Auto-generate course code suggestion
+    const nameField = document.getElementById('{{ form.name.id_for_label }}');
+    const codeField = document.getElementById('{{ form.course_code.id_for_label }}');
+    
+    nameField.addEventListener('input', function() {
+        if (!codeField.value) {
+            const words = this.value.split(' ');
+            const code = words.map(word => word.substring(0, 3).toUpperCase()).join('');
+            if (code.length > 0) {
+                codeField.value = code + '101';
+            }
+        }
+    });
+
+    // End date auto-calculation
+    const startDateField = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateField = document.getElementById('{{ form.end_date.id_for_label }}');
+    const durationField = document.getElementById('{{ form.duration.id_for_label }}');
+    const durationUnitField = document.getElementById('{{ form.duration_unit.id_for_label }}');
+    
+    function calculateEndDate() {
+        if (startDateField.value && durationField.value && durationUnitField.value) {
+            const startDate = new Date(startDateField.value);
+            const duration = parseInt(durationField.value);
+            const unit = durationUnitField.value;
+            
+            let endDate = new Date(startDate);
+            
+            switch(unit) {
+                case 'days':
+                    endDate.setDate(endDate.getDate() + duration);
+                    break;
+                case 'weeks':
+                    endDate.setDate(endDate.getDate() + (duration * 7));
+                    break;
+                case 'months':
+                    endDate.setMonth(endDate.getMonth() + duration);
+                    break;
+                case 'hours':
+                    // Assume 8 hours per day, 5 days per week
+                    const days = Math.ceil(duration / 8) * 1.4;
+                    endDate.setDate(endDate.getDate() + days);
+                    break;
+            }
+            
+            endDateField.value = endDate.toISOString().split('T')[0];
+        }
+    }
+    
+    [startDateField, durationField, durationUnitField].forEach(field => {
+        field.addEventListener('change', calculateEndDate);
+    });
+});
+
+function togglePreview() {
+    const preview = document.getElementById('coursePreview');
+    const content = document.getElementById('previewContent');
+    
+    if (preview.style.display === 'none') {
+        // Generate preview
+        const form = document.getElementById('courseForm');
+        const formData = new FormData(form);
+        
+        let previewHTML = `
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>${formData.get('name') || 'Course Name'}</h5>
+                    <p class="text-muted">${formData.get('description') || 'No description provided'}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-primary">${formData.get('course_code') || 'CODE'}</span>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <small class="text-muted">Duration</small><br>
+                    <strong>${formData.get('duration') || '0'} ${formData.get('duration_unit') || 'months'}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Type</small><br>
+                    <strong>${formData.get('course_type') || 'regular'}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Max Students</small><br>
+                    <strong>${formData.get('max_students') || '30'}</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Status</small><br>
+                    <strong>${formData.get('status') || 'active'}</strong>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = previewHTML;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+</script>
+{% endblock %} 

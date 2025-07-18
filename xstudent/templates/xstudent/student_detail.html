@@ -1,0 +1,428 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}{{ student.student_name }} - Student Details - EduPulse{% endblock %}
+
+{% block header %}Student Details{% endblock %}
+
+{% block header_actions %}
+    <div class="btn-group">
+        <a href="{% url 'student_edit' student.pk %}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit Student
+        </a>
+        <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <!-- Student Profile Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if student.student_profile_picture %}
+                        <img src="{{ student.student_profile_picture.url }}" alt="{{ student.student_name }}" 
+                             class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 120px; height: 120px; font-size: 2rem;">
+                            {{ student.student_name.0 }}
+                        </div>
+                    {% endif %}
+                    <h4 class="card-title">{{ student.student_name|default:"[Draft Student]" }}</h4>
+                    <p class="text-muted">ID: {{ student.pk }}</p>
+                    {% if student.status == 'draft' %}
+                        <span class="badge bg-warning text-dark mb-2">Draft</span>
+                    {% else %}
+                        <span class="badge bg-success mb-2">Active</span>
+                    {% endif %}
+                    <p class="text-muted">
+                        <i class="fas fa-graduation-cap me-1"></i>
+                        {{ student.grade }} - {{ student.program }}
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="mailto:{{ student.email_id }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-2"></i>{{ student.email_id }}
+                        </a>
+                        <a href="tel:{{ student.mobile_no }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-phone me-2"></i>{{ student.mobile_no }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Quick Info</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-primary">{{ student.grade }}</h6>
+                            <small class="text-muted">Grade</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-info">{{ student.created_at|date:"M Y" }}</h6>
+                            <small class="text-muted">Registered</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Information Tabs -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="studentDetailTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
+                                <i class="fas fa-user me-2"></i>Personal
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="academic-tab" data-bs-toggle="tab" data-bs-target="#academic" type="button" role="tab">
+                                <i class="fas fa-graduation-cap me-2"></i>Academic
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="family-tab" data-bs-toggle="tab" data-bs-target="#family" type="button" role="tab">
+                                <i class="fas fa-users me-2"></i>Family
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" type="button" role="tab">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="studentDetailTabsContent">
+                        <!-- Personal Information -->
+                        <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Full Name:</strong></td>
+                                            <td>{{ student.student_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td><a href="mailto:{{ student.email_id }}">{{ student.email_id }}</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Mobile:</strong></td>
+                                            <td><a href="tel:{{ student.mobile_no }}">{{ student.mobile_no }}</a></td>
+                                        </tr>
+                                        {% if student.telephone %}
+                                        <tr>
+                                            <td><strong>Telephone:</strong></td>
+                                            <td><a href="tel:{{ student.telephone }}">{{ student.telephone }}</a></td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <td><strong>Date of Birth:</strong></td>
+                                            <td>{{ student.date_of_birth|date:"F d, Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Gender:</strong></td>
+                                            <td>{{ student.get_gender_display }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        {% if student.school_name %}
+                                        <tr>
+                                            <td><strong>School:</strong></td>
+                                            <td>{{ student.school_name }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <td><strong>Selected Contact:</strong></td>
+                                            <td>{{ student.select_mobile_number }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Created:</strong></td>
+                                            <td>{{ student.created_at|date:"F d, Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Last Updated:</strong></td>
+                                            <td>{{ student.updated_at|date:"F d, Y" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Academic Information -->
+                        <div class="tab-pane fade" id="academic" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Student ID:</strong></td>
+                                            <td>{{ student.pk }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Grade:</strong></td>
+                                            <td>{{ student.grade }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Program:</strong></td>
+                                            <td>{{ student.program }}</td>
+                                        </tr>
+                                        {% if student.school_name %}
+                                        <tr>
+                                            <td><strong>School Name:</strong></td>
+                                            <td>{{ student.school_name }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Registration Date:</strong></td>
+                                            <td>{{ student.created_at|date:"F d, Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Gender:</strong></td>
+                                            <td>{{ student.get_gender_display }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Status:</strong></td>
+                                            <td>
+                                                {% if student.status == 'draft' %}
+                                                    <span class="badge bg-warning text-dark">Draft</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Family Information -->
+                        <div class="tab-pane fade" id="family" role="tabpanel">
+                            <div class="row">
+                                <!-- Father's Information -->
+                                <div class="col-12 mb-4">
+                                    <h6 class="text-primary border-bottom pb-2"><i class="fas fa-male me-2"></i>Father's Information</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                <tr>
+                                                    <td><strong>Name:</strong></td>
+                                                    <td>{{ student.father_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Mobile:</strong></td>
+                                                    <td><a href="tel:{{ student.father_mobile_no }}">{{ student.father_mobile_no }}</a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Email:</strong></td>
+                                                    <td><a href="mailto:{{ student.father_email_id }}">{{ student.father_email_id }}</a></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                {% if student.father_occupation %}
+                                                <tr>
+                                                    <td><strong>Occupation:</strong></td>
+                                                    <td>{{ student.father_occupation }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if student.father_company_name %}
+                                                <tr>
+                                                    <td><strong>Company:</strong></td>
+                                                    <td>{{ student.father_company_name }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Mother's Information -->
+                                <div class="col-12 mb-4">
+                                    <h6 class="text-primary border-bottom pb-2"><i class="fas fa-female me-2"></i>Mother's Information</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                <tr>
+                                                    <td><strong>Name:</strong></td>
+                                                    <td>{{ student.mother_name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Mobile:</strong></td>
+                                                    <td><a href="tel:{{ student.mother_mobile_no }}">{{ student.mother_mobile_no }}</a></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Email:</strong></td>
+                                                    <td><a href="mailto:{{ student.mother_email_id }}">{{ student.mother_email_id }}</a></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                {% if student.mother_occupation %}
+                                                <tr>
+                                                    <td><strong>Occupation:</strong></td>
+                                                    <td>{{ student.mother_occupation }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if student.mother_company_name %}
+                                                <tr>
+                                                    <td><strong>Company:</strong></td>
+                                                    <td>{{ student.mother_company_name }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Guardian Information -->
+                                {% if student.guardian_name %}
+                                <div class="col-12 mb-4">
+                                    <h6 class="text-primary border-bottom pb-2"><i class="fas fa-user-shield me-2"></i>Guardian Information</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                <tr>
+                                                    <td><strong>Name:</strong></td>
+                                                    <td>{{ student.guardian_name }}</td>
+                                                </tr>
+                                                {% if student.guardian_mobile_no %}
+                                                <tr>
+                                                    <td><strong>Mobile:</strong></td>
+                                                    <td><a href="tel:{{ student.guardian_mobile_no }}">{{ student.guardian_mobile_no }}</a></td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless table-sm">
+                                                {% if student.guardian_relationship %}
+                                                <tr>
+                                                    <td><strong>Relationship:</strong></td>
+                                                    <td>{{ student.guardian_relationship }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Siblings Information -->
+                                {% if student.sibling_1_name or student.sibling_2_name %}
+                                <div class="col-12">
+                                    <h6 class="text-primary border-bottom pb-2"><i class="fas fa-child me-2"></i>Siblings Information</h6>
+                                    <div class="row">
+                                        {% if student.sibling_1_name %}
+                                        <div class="col-md-6">
+                                            <strong>Sibling 1:</strong><br>
+                                            {{ student.sibling_1_name }}
+                                            {% if student.sibling_1_age %}({{ student.sibling_1_age }} years old){% endif %}
+                                        </div>
+                                        {% endif %}
+                                        {% if student.sibling_2_name %}
+                                        <div class="col-md-6">
+                                            <strong>Sibling 2:</strong><br>
+                                            {{ student.sibling_2_name }}
+                                            {% if student.sibling_2_age %}({{ student.sibling_2_age }} years old){% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Address Information -->
+                        <div class="tab-pane fade" id="address" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6 class="text-primary border-bottom pb-2"><i class="fas fa-home me-2"></i>Address Details</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless">
+                                                <tr>
+                                                    <td><strong>Address Line 1:</strong></td>
+                                                    <td>{{ student.address_line_1 }}</td>
+                                                </tr>
+                                                {% if student.address_line_2 %}
+                                                <tr>
+                                                    <td><strong>Address Line 2:</strong></td>
+                                                    <td>{{ student.address_line_2 }}</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td><strong>Area:</strong></td>
+                                                    <td>{{ student.area }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>City:</strong></td>
+                                                    <td>{{ student.city }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-borderless">
+                                                <tr>
+                                                    <td><strong>State/Province:</strong></td>
+                                                    <td>{{ student.state_emirates_province }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Country:</strong></td>
+                                                    <td>{{ student.country }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Postal Code:</strong></td>
+                                                    <td>{{ student.postal_code }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Timestamps -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Created: {{ student.created_at|date:"F d, Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-edit me-2"></i>
+                                Last Updated: {{ student.updated_at|date:"F d, Y H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

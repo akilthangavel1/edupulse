@@ -1,0 +1,161 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Draft Students - EduPulse{% endblock %}
+
+{% block header %}Draft Students{% endblock %}
+
+{% block header_actions %}
+    <div class="btn-group">
+        <a href="{% url 'student_create' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>New Student
+        </a>
+        <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-users me-2"></i>All Students
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file-alt fa-3x me-4"></i>
+                        <div>
+                            <h3 class="mb-0">{{ total_drafts }}</h3>
+                            <p class="mb-0">Draft Students Waiting to be Completed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Students Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Grade</th>
+                                <th>Program</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                                <tr>
+                                    <td>
+                                        {% if student.student_profile_picture %}
+                                            <img src="{{ student.student_profile_picture.url }}" alt="{{ student.student_name }}" 
+                                                 class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
+                                                {% if student.student_name %}{{ student.student_name.0|upper }}{% else %}?{% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ student.student_name|default:"[Unnamed Draft]" }}</strong>
+                                            <span class="badge bg-warning text-dark ms-1">Draft</span>
+                                            <br>
+                                            <small class="text-muted">{{ student.school_name|default:"No school specified" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if student.email_id %}
+                                            <a href="mailto:{{ student.email_id }}" class="text-decoration-none">
+                                                {{ student.email_id }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">Not provided</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if student.grade %}
+                                            <span class="badge bg-secondary">{{ student.grade }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ student.program|default:"-"|truncatechars:20 }}
+                                    </td>
+                                    <td>{{ student.updated_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-primary" title="View Draft">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'student_edit' student.pk %}" class="btn btn-outline-warning" title="Continue Editing">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'student_delete' student.pk %}" class="btn btn-outline-danger" title="Delete Draft">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Draft students pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No draft students</h4>
+                    <p class="text-muted">You don't have any draft students saved.</p>
+                    <a href="{% url 'student_create' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Create New Student
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %} 

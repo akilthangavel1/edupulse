@@ -1,0 +1,272 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Enrollment Details - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user-graduate"></i> Enrollment Details</h2>
+                <a href="{% url 'enrollment_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Enrollments
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> Enrollment Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Student:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.student.student_name }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Course:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.course.name }} ({{ enrollment.course.course_code }})</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Enrollment Date:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.enrollment_date|date:"F d, Y" }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Status:</strong></div>
+                                <div class="col-sm-9">
+                                    <span class="badge bg-{% if enrollment.status == 'active' %}success{% elif enrollment.status == 'completed' %}primary{% elif enrollment.status == 'pending' %}warning{% else %}secondary{% endif %} fs-6">
+                                        {{ enrollment.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {% if enrollment.completion_date %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Completion Date:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.completion_date|date:"F d, Y" }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if enrollment.final_grade %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Final Grade:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.final_grade }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if enrollment.enrollment_notes %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Notes:</strong></div>
+                                <div class="col-sm-9">{{ enrollment.enrollment_notes }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Financial Summary -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calculator"></i> Financial Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="text-primary">{{ total_fees }} KWD</h4>
+                                        <small class="text-muted">Total Fees</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="text-success">{{ total_paid }} KWD</h4>
+                                        <small class="text-muted">Amount Paid</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="{% if outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ outstanding_balance }} KWD
+                                        </h4>
+                                        <small class="text-muted">Outstanding</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="text-info">{{ payments|length }}</h4>
+                                        <small class="text-muted">Payments</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Payments -->
+                    {% if payments %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-credit-card"></i> Recent Payments</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Method</th>
+                                            <th>Status</th>
+                                            <th>Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in payments %}
+                                        <tr>
+                                            <td class="fw-bold text-success">{{ payment.amount }} KWD</td>
+                                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                            <td>{{ payment.get_payment_method_display }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                                    {{ payment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if payment.reference_number %}
+                                                    <code>{{ payment.reference_number }}</code>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Invoices -->
+                    {% if invoices %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-file-invoice"></i> Related Invoices</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice #</th>
+                                            <th>Issue Date</th>
+                                            <th>Due Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for invoice in invoices %}
+                                        <tr>
+                                            <td><code>{{ invoice.invoice_number }}</code></td>
+                                            <td>{{ invoice.issue_date|date:"M d, Y" }}</td>
+                                            <td>{{ invoice.due_date|date:"M d, Y" }}</td>
+                                            <td class="fw-bold">{{ invoice.total_amount }} KWD</td>
+                                            <td>
+                                                <span class="badge bg-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'sent' %}primary{% elif invoice.status == 'overdue' %}danger{% else %}secondary{% endif %}">
+                                                    {{ invoice.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'invoice_detail' invoice.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-cog"></i> Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <a href="{% url 'payment_create' %}" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-credit-card"></i> Record Payment
+                            </a>
+                            
+                            <a href="{% url 'invoice_create' %}" class="btn btn-info w-100 mb-2">
+                                <i class="fas fa-file-invoice"></i> Create Invoice
+                            </a>
+                            
+                            {% if enrollment.course.has_kits %}
+                            <a href="{% url 'kit_fee_create' %}" class="btn btn-warning w-100 mb-2">
+                                <i class="fas fa-box"></i> Add Kit Fee
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'course_detail' enrollment.course.pk %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-graduation-cap"></i> View Course
+                            </a>
+                            
+                            <hr>
+                            
+                            <!-- Receipt Options -->
+                            <h6 class="text-muted mb-2"><i class="fas fa-receipt"></i> Download Receipt</h6>
+                            <div class="btn-group w-100 mb-2" role="group">
+                                <a href="{% url 'enrollment_receipt_print' enrollment.pk %}" target="_blank" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-print"></i> Print
+                                </a>
+                                <a href="{% url 'enrollment_receipt_pdf' enrollment.pk %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                                <a href="{% url 'enrollment_receipt_excel' enrollment.pk %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-user"></i> Student Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Name:</strong> {{ enrollment.student.student_name }}</p>
+                            <p><strong>Email:</strong> {{ enrollment.student.email_id }}</p>
+                            <p><strong>Phone:</strong> {{ enrollment.student.phone_number }}</p>
+                            <p><strong>Date of Birth:</strong> {{ enrollment.student.date_of_birth|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-graduation-cap"></i> Course Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Course:</strong> {{ enrollment.course.name }}</p>
+                            <p><strong>Code:</strong> {{ enrollment.course.course_code }}</p>
+                            <p><strong>Type:</strong> {{ enrollment.course.get_course_type_display }}</p>
+                            <p><strong>Duration:</strong> {{ enrollment.course.duration }} {{ enrollment.course.get_duration_unit_display }}</p>
+                            {% if enrollment.course.instructor_name %}
+                            <p><strong>Instructor:</strong> {{ enrollment.course.instructor_name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

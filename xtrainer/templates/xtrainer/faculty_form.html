@@ -1,0 +1,415 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{{ action|default:"Add" }} Faculty{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-user-plus"></i> {{ action|default:"Add" }} Faculty
+                    </h1>
+                    <p class="text-muted">{{ action|default:"Add" }} faculty member details</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Faculty Form -->
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Personal Information Card -->
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user"></i> Personal Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.faculty_id.id_for_label }}" class="form-label">{{ form.faculty_id.label }}</label>
+                                            {{ form.faculty_id }}
+                                            {% if form.faculty_id.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.faculty_id.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                                            {{ form.status }}
+                                            {% if form.status.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.status.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+                                            {{ form.phone }}
+                                            {% if form.phone.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.emergency_contact.id_for_label }}" class="form-label">{{ form.emergency_contact.label }}</label>
+                                            {{ form.emergency_contact }}
+                                            {% if form.emergency_contact.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.emergency_contact.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.join_date.id_for_label }}" class="form-label">{{ form.join_date.label }}</label>
+                                            {{ form.join_date }}
+                                            {% if form.join_date.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.join_date.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-graduation-cap"></i> Professional Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.qualification.id_for_label }}" class="form-label">{{ form.qualification.label }}</label>
+                                            {{ form.qualification }}
+                                            {% if form.qualification.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.qualification.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.specialization.id_for_label }}" class="form-label">{{ form.specialization.label }}</label>
+                                            {{ form.specialization }}
+                                            {% if form.specialization.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.specialization.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.experience_years.id_for_label }}" class="form-label">{{ form.experience_years.label }}</label>
+                                            {{ form.experience_years }}
+                                            {% if form.experience_years.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.experience_years.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.employment_type.id_for_label }}" class="form-label">{{ form.employment_type.label }}</label>
+                                            {{ form.employment_type }}
+                                            {% if form.employment_type.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.employment_type.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.hourly_rate.id_for_label }}" class="form-label">{{ form.hourly_rate.label }}</label>
+                                            {{ form.hourly_rate }}
+                                            {% if form.hourly_rate.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.hourly_rate.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.can_teach_courses.id_for_label }}" class="form-label">{{ form.can_teach_courses.label }}</label>
+                                    {{ form.can_teach_courses }}
+                                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple courses</small>
+                                    {% if form.can_teach_courses.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.can_teach_courses.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">{{ form.bio.label }}</label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-map-marker-alt"></i> Address Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="{{ form.address_line_1.id_for_label }}" class="form-label">{{ form.address_line_1.label }}</label>
+                                    {{ form.address_line_1 }}
+                                    {% if form.address_line_1.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.address_line_1.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.address_line_2.id_for_label }}" class="form-label">{{ form.address_line_2.label }}</label>
+                                    {{ form.address_line_2 }}
+                                    {% if form.address_line_2.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.address_line_2.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
+                                            {{ form.city }}
+                                            {% if form.city.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.city.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.state.id_for_label }}" class="form-label">{{ form.state.label }}</label>
+                                            {{ form.state }}
+                                            {% if form.state.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.state.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.country.id_for_label }}" class="form-label">{{ form.country.label }}</label>
+                                            {{ form.country }}
+                                            {% if form.country.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.country.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.postal_code.id_for_label }}" class="form-label">{{ form.postal_code.label }}</label>
+                                    {{ form.postal_code }}
+                                    {% if form.postal_code.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.postal_code.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Picture & Actions Card -->
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-image"></i> Profile Picture
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                {% if faculty.profile_picture %}
+                                    <img src="{{ faculty.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="max-width: 150px; max-height: 150px;">
+                                {% else %}
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                                        <i class="fas fa-user fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.profile_picture.id_for_label }}" class="form-label">{{ form.profile_picture.label }}</label>
+                                    {{ form.profile_picture }}
+                                    {% if form.profile_picture.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.profile_picture.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Upload JPG, PNG or GIF (max 5MB)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions Card -->
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-save"></i> Actions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> {{ action|default:"Create" }} Faculty
+                                    </button>
+                                    
+                                    <a href="{% url 'faculty_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    
+                                    {% if faculty %}
+                                        <a href="{% url 'faculty_detail' faculty.pk %}" class="btn btn-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="text-muted small">
+                                    <p><i class="fas fa-info-circle"></i> <strong>Required fields are marked with *</strong></p>
+                                    <p><i class="fas fa-shield-alt"></i> All information is encrypted and secure</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #e74a3b;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+</style>
+{% endblock %} 

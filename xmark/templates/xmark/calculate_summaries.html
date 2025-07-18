@@ -1,0 +1,66 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Calculate Grade Summaries{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Calculate Summaries</li>
+{% endblock %}
+
+{% block page_title %}Calculate Grade Summaries{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'marks_dashboard' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-calculator me-1"></i>
+                    Recalculate Grade Summaries
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This utility will recalculate all grade summaries for students based on their published marks. 
+                        This process will update or create grade summaries for all student-subject combinations.
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> This will only process marks with status "Published". 
+                        Draft marks will be ignored in the calculation.
+                    </div>
+                    
+                    <h5>What this process does:</h5>
+                    <ul>
+                        <li>Calculates weighted averages based on assessment type weights</li>
+                        <li>Assigns final grades based on grade scale configuration</li>
+                        <li>Updates grade points for each student-subject combination</li>
+                        <li>Creates or updates grade summary records</li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calculator"></i> Calculate All Grade Summaries
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <small class="text-muted">
+                            This process may take a few moments depending on the number of marks in your system.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

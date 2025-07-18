@@ -1,0 +1,325 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Attendance Reports - EduPulse{% endblock %}
+
+{% block header %}Attendance Reports{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_dashboard' %}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-chart-bar"></i> Dashboard
+    </a>
+    <a href="{% url 'attendance_list' %}" class="btn btn-outline-info">
+        <i class="fas fa-list"></i> View Records
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Report Generation Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-export"></i> Generate Attendance Report
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="reportForm">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.report_type.label_tag }}
+                            {{ form.report_type }}
+                            {% if form.report_type.errors %}
+                                <div class="text-danger small">
+                                    {{ form.report_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.include_summary.label_tag }}
+                            <div class="form-check">
+                                {{ form.include_summary }}
+                                <label class="form-check-label" for="{{ form.include_summary.id_for_label }}">
+                                    Include summary statistics in the report
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Date Range (shown/hidden based on report type) -->
+                    <div class="row mb-3" id="customDateRange" style="display: none;">
+                        <div class="col-md-6">
+                            {{ form.date_from.label_tag }}
+                            {{ form.date_from }}
+                            {% if form.date_from.errors %}
+                                <div class="text-danger small">
+                                    {{ form.date_from.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date_to.label_tag }}
+                            {{ form.date_to }}
+                            {% if form.date_to.errors %}
+                                <div class="text-danger small">
+                                    {{ form.date_to.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Student Selection -->
+                    <div class="mb-3">
+                        {{ form.students.label_tag }}
+                        <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="selectAllStudents()">
+                                    Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllStudents()">
+                                    Deselect All
+                                </button>
+                            </div>
+                            <div class="row">
+                                {% for choice in form.students %}
+                                <div class="col-md-6 mb-1">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label ms-1" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Leave empty to include all students</small>
+                    </div>
+
+                    <!-- Non-field errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Report will be downloaded as CSV file
+                            </span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Generate & Download Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Report Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Report Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Report Types:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Daily:</strong> Today's attendance records</li>
+                            <li><strong>Weekly:</strong> This week's attendance (Monday to today)</li>
+                            <li><strong>Monthly:</strong> This month's attendance (1st to today)</li>
+                            <li><strong>Custom:</strong> Specify your own date range</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Report Contents:</h6>
+                        <ul class="mb-0">
+                            <li>Student information (name, grade, program)</li>
+                            <li>Attendance date and status</li>
+                            <li>Time in/out information</li>
+                            <li>Notes and recorded by information</li>
+                            <li>Optional: Summary statistics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Quick Report Templates -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-rocket"></i> Quick Report Templates
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary" onclick="setQuickReport('daily')">
+                        <i class="fas fa-calendar-day"></i> Today's Report
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="setQuickReport('weekly')">
+                        <i class="fas fa-calendar-week"></i> This Week
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="setQuickReport('monthly')">
+                        <i class="fas fa-calendar-alt"></i> This Month
+                    </button>
+                    <hr>
+                    <button type="button" class="btn btn-outline-warning" onclick="setAbsentStudents()">
+                        <i class="fas fa-exclamation-triangle"></i> Absent Students Today
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="setLateStudents()">
+                        <i class="fas fa-clock"></i> Late Students This Week
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-history"></i> Popular Reports
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Monthly Summary</strong><br>
+                                <small class="text-muted">Complete month overview</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickReport('monthly', true)">
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Weekly Summary</strong><br>
+                                <small class="text-muted">Week performance report</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickReport('weekly', true)">
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Daily Attendance</strong><br>
+                                <small class="text-muted">Today's complete list</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="setQuickReport('daily', true)">
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb"></i> Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0 small">
+                    <li>Use monthly reports for parent meetings</li>
+                    <li>Weekly reports help track patterns</li>
+                    <li>Include summary for statistics</li>
+                    <li>CSV files can be opened in Excel</li>
+                    <li>Filter by students for individual reports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Show/hide custom date range based on report type
+    $('#id_report_type').change(function() {
+        if ($(this).val() === 'custom') {
+            $('#customDateRange').show();
+        } else {
+            $('#customDateRange').hide();
+        }
+    });
+    
+    // Trigger change event on page load
+    $('#id_report_type').trigger('change');
+});
+
+// Quick report functions
+function setQuickReport(type, includeSummary = false) {
+    $('#id_report_type').val(type);
+    $('#id_include_summary').prop('checked', includeSummary);
+    $('#id_report_type').trigger('change');
+    
+    // Scroll to form
+    $('html, body').animate({
+        scrollTop: $('#reportForm').offset().top - 100
+    }, 500);
+}
+
+function setAbsentStudents() {
+    $('#id_report_type').val('daily');
+    $('#id_include_summary').prop('checked', true);
+    $('#id_report_type').trigger('change');
+    
+    // Note: This would need backend filtering for absent students
+    alert('Set to daily report. You can filter for absent students after downloading.');
+}
+
+function setLateStudents() {
+    $('#id_report_type').val('weekly');
+    $('#id_include_summary').prop('checked', true);
+    $('#id_report_type').trigger('change');
+    
+    // Note: This would need backend filtering for late students
+    alert('Set to weekly report. You can filter for late students after downloading.');
+}
+
+// Student selection functions
+function selectAllStudents() {
+    $('input[name="students"]').prop('checked', true);
+}
+
+function deselectAllStudents() {
+    $('input[name="students"]').prop('checked', false);
+}
+
+// Form submission
+$('#reportForm').submit(function() {
+    var reportType = $('#id_report_type').val();
+    var selectedStudents = $('input[name="students"]:checked').length;
+    var totalStudents = $('input[name="students"]').length;
+    
+    var message = 'Generate ' + reportType + ' report';
+    if (selectedStudents > 0 && selectedStudents < totalStudents) {
+        message += ' for ' + selectedStudents + ' selected students';
+    } else if (selectedStudents === 0) {
+        message += ' for all students';
+    }
+    message += '?';
+    
+    return confirm(message);
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,132 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Delete Attendance Record - EduPulse{% endblock %}
+
+{% block header %}Delete Attendance Record{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_detail' attendance.pk %}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left"></i> Cancel
+    </a>
+    <a href="{% url 'attendance_list' %}" class="btn btn-outline-info">
+        <i class="fas fa-list"></i> All Records
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-warning"></i>
+                    <strong>Warning:</strong> This action cannot be undone. The attendance record will be permanently deleted.
+                </div>
+
+                <h6 class="mb-3">Are you sure you want to delete this attendance record?</h6>
+
+                <!-- Record Details -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                {% if attendance.student.student_profile_picture %}
+                                    <img src="{{ attendance.student.student_profile_picture.url }}" 
+                                         alt="{{ attendance.student.student_name }}" 
+                                         class="rounded-circle" 
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9">
+                                <h6 class="mb-1">{{ attendance.student.student_name }}</h6>
+                                <p class="text-muted mb-2">{{ attendance.student.grade }} - {{ attendance.student.program }}</p>
+                                
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Date:</strong> {{ attendance.date|date:"F d, Y" }}<br>
+                                        <strong>Status:</strong> 
+                                        <span class="badge bg-{% if attendance.status == 'present' %}success{% elif attendance.status == 'absent' %}danger{% elif attendance.status == 'late' %}warning{% else %}info{% endif %}">
+                                            {{ attendance.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Time In:</strong> 
+                                        {% if attendance.time_in %}
+                                            {{ attendance.time_in|time:"g:i A" }}
+                                        {% else %}
+                                            <span class="text-muted">Not recorded</span>
+                                        {% endif %}<br>
+                                        
+                                        <strong>Time Out:</strong> 
+                                        {% if attendance.time_out %}
+                                            {{ attendance.time_out|time:"g:i A" }}
+                                        {% else %}
+                                            <span class="text-muted">Not recorded</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if attendance.notes %}
+                                <div class="mt-2">
+                                    <strong>Notes:</strong> {{ attendance.notes|truncatewords:20 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deletion Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'attendance_detail' attendance.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Yes, Delete Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> What Happens When You Delete?
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>The attendance record will be permanently removed from the database</li>
+                    <li>This will affect any attendance reports or statistics</li>
+                    <li>The student's attendance summary may be updated</li>
+                    <li>This action cannot be reversed - you would need to create a new record if needed</li>
+                </ul>
+                
+                <hr>
+                
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Alternative:</strong> Instead of deleting, consider editing the record to correct any mistakes.
+                    <a href="{% url 'attendance_edit' attendance.pk %}" class="alert-link">Edit this record</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

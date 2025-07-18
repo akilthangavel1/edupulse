@@ -1,0 +1,134 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}New Enrollment - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user-plus"></i> New Student Enrollment</h2>
+                <a href="{% url 'enrollment_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Enrollments
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-edit"></i> Enrollment Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.student.label_tag }}
+                                            {{ form.student }}
+                                            {% if form.student.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.student.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.course.label_tag }}
+                                            {{ form.course }}
+                                            {% if form.course.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.course.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.enrollment_date.label_tag }}
+                                            {{ form.enrollment_date }}
+                                            {% if form.enrollment_date.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.enrollment_date.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.status.label_tag }}
+                                            {{ form.status }}
+                                            {% if form.status.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.status.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form.enrollment_notes.label_tag }}
+                                    {{ form.enrollment_notes }}
+                                    {% if form.enrollment_notes.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.enrollment_notes.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'enrollment_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Enroll Student
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-info-circle"></i> Enrollment Guidelines</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success"></i> Select an active student</li>
+                                <li><i class="fas fa-check text-success"></i> Choose an available course</li>
+                                <li><i class="fas fa-check text-success"></i> Check course capacity</li>
+                                <li><i class="fas fa-check text-success"></i> Verify age requirements</li>
+                                <li><i class="fas fa-check text-success"></i> Set enrollment date</li>
+                                <li><i class="fas fa-check text-success"></i> Add any special notes</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Important Notes</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <p><strong>Age Requirements:</strong> The system will automatically check if the student meets the course age requirements.</p>
+                                <p><strong>Capacity:</strong> Enrollment will be blocked if the course is at full capacity.</p>
+                                <p><strong>Duplicates:</strong> Students cannot be enrolled in the same course twice.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

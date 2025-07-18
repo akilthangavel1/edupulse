@@ -1,0 +1,267 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Attendance Details - EduPulse{% endblock %}
+
+{% block header %}Attendance Record Details{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+    <a href="{% url 'attendance_edit' attendance.pk %}" class="btn btn-outline-primary me-2">
+        <i class="fas fa-edit"></i> Edit
+    </a>
+    <a href="{% url 'attendance_delete' attendance.pk %}" class="btn btn-outline-danger">
+        <i class="fas fa-trash"></i> Delete
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Attendance Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-check"></i> Attendance Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">Date</h6>
+                        <p class="mb-3">
+                            <strong>{{ attendance.date|date:"F d, Y" }}</strong><br>
+                            <small class="text-muted">{{ attendance.date|date:"l" }}</small>
+                        </p>
+
+                        <h6 class="text-muted mb-2">Status</h6>
+                        <p class="mb-3">
+                            <span class="badge bg-{% if attendance.status == 'present' %}success{% elif attendance.status == 'absent' %}danger{% elif attendance.status == 'late' %}warning{% else %}info{% endif %} fs-6">
+                                <i class="fas fa-{% if attendance.status == 'present' %}check{% elif attendance.status == 'absent' %}times{% elif attendance.status == 'late' %}clock{% else %}info{% endif %}"></i>
+                                {{ attendance.get_status_display }}
+                            </span>
+                        </p>
+
+                        <h6 class="text-muted mb-2">Time Information</h6>
+                        <p class="mb-3">
+                            <strong>Time In:</strong> 
+                            {% if attendance.time_in %}
+                                {{ attendance.time_in|time:"g:i A" }}
+                            {% else %}
+                                <span class="text-muted">Not recorded</span>
+                            {% endif %}<br>
+                            
+                            <strong>Time Out:</strong> 
+                            {% if attendance.time_out %}
+                                {{ attendance.time_out|time:"g:i A" }}
+                            {% else %}
+                                <span class="text-muted">Not recorded</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-2">Record Information</h6>
+                        <p class="mb-3">
+                            <strong>Recorded By:</strong> 
+                            {% if attendance.recorded_by %}
+                                {{ attendance.recorded_by.get_full_name|default:attendance.recorded_by.username }}
+                            {% else %}
+                                <span class="text-muted">Unknown</span>
+                            {% endif %}<br>
+                            
+                            <strong>Created:</strong> {{ attendance.created_at|date:"M d, Y g:i A" }}<br>
+                            
+                            {% if attendance.updated_at != attendance.created_at %}
+                                <strong>Last Updated:</strong> {{ attendance.updated_at|date:"M d, Y g:i A" }}
+                            {% endif %}
+                        </p>
+
+                        {% if attendance.notes %}
+                        <h6 class="text-muted mb-2">Notes</h6>
+                        <div class="bg-light p-3 rounded">
+                            {{ attendance.notes|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_create' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus"></i> New Record
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_list' %}?student={{ attendance.student.id }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-history"></i> Student History
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'student_detail' attendance.student.pk %}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-user"></i> Student Profile
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_list' %}?date_from={{ attendance.date }}&date_to={{ attendance.date }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-calendar-day"></i> Same Day
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Student Information -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-user"></i> Student Information
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                {% if attendance.student.student_profile_picture %}
+                    <img src="{{ attendance.student.student_profile_picture.url }}" 
+                         alt="{{ attendance.student.student_name }}" 
+                         class="rounded-circle mb-3" 
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                {% endif %}
+                
+                <h5 class="mb-1">{{ attendance.student.student_name }}</h5>
+                <p class="text-muted mb-3">{{ attendance.student.email_id }}</p>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <strong>{{ attendance.student.grade }}</strong><br>
+                        <small class="text-muted">Grade</small>
+                    </div>
+                    <div class="col-6">
+                        <strong>{{ attendance.student.program }}</strong><br>
+                        <small class="text-muted">Program</small>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <a href="{% url 'student_detail' attendance.student.pk %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> View Full Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Student Attendance Summary -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-pie"></i> This Month's Summary
+                </h6>
+            </div>
+            <div class="card-body">
+                {% with attendance.student.attendances.all as student_attendances %}
+                    {% now "Y-m-01" as month_start %}
+                    {% now "Y-m-t" as month_end %}
+                    
+                    <!-- Get this month's attendance -->
+                    {% for att in student_attendances %}
+                        {% if att.date >= month_start|date:"Y-m-d" and att.date <= month_end|date:"Y-m-d" %}
+                            <!-- Count attendance by status -->
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+                
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="bg-success text-white rounded p-2">
+                            <h6 class="mb-1">
+                                {{ attendance.student.attendances.filter.count }}
+                            </h6>
+                            <small>Present</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="bg-danger text-white rounded p-2">
+                            <h6 class="mb-1">0</h6>
+                            <small>Absent</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-warning text-white rounded p-2">
+                            <h6 class="mb-1">0</h6>
+                            <small>Late</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-info text-white rounded p-2">
+                            <h6 class="mb-1">0</h6>
+                            <small>Excused</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <a href="{% url 'attendance_list' %}?student={{ attendance.student.id }}" class="btn btn-outline-primary btn-sm w-100">
+                    <i class="fas fa-list"></i> View All Records
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Records -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> Recent Records
+                </h6>
+            </div>
+            <div class="card-body">
+                {% with attendance.student.attendances.all|slice:":5" as recent_records %}
+                    {% if recent_records %}
+                        <div class="list-group list-group-flush">
+                            {% for record in recent_records %}
+                            <div class="list-group-item px-0 {% if record.pk == attendance.pk %}bg-light{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">{{ record.date|date:"M d" }}</small><br>
+                                        <span class="badge bg-{% if record.status == 'present' %}success{% elif record.status == 'absent' %}danger{% elif record.status == 'late' %}warning{% else %}info{% endif %} badge-sm">
+                                            {{ record.get_status_display }}
+                                        </span>
+                                    </div>
+                                    {% if record.pk == attendance.pk %}
+                                        <small class="text-primary fw-bold">Current</small>
+                                    {% else %}
+                                        <a href="{% url 'attendance_detail' record.pk %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0">No other records found</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

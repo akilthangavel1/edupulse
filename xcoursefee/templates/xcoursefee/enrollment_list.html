@@ -1,0 +1,172 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Enrollment Management - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user-graduate"></i> Enrollment Management</h2>
+                <div>
+                    <a href="{% url 'enrollment_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Enrollment
+                    </a>
+                    <a href="{% url 'coursefee_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-dashboard"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filter Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Filter Enrollments</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Student</label>
+                            <select name="student" class="form-control">
+                                <option value="">All Students</option>
+                                {% for student in students %}
+                                    <option value="{{ student.id }}" {% if selected_student == student.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ student.student_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Course</label>
+                            <select name="course" class="form-control">
+                                <option value="">All Courses</option>
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}" {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ course.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="">All Status</option>
+                                {% for choice in status_choices %}
+                                    <option value="{{ choice.0 }}" {% if selected_status == choice.0 %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Action</label>
+                            <button type="submit" class="btn btn-primary d-block">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Enrollments List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Enrollments ({{ enrollments|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if enrollments %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Course</th>
+                                        <th>Enrollment Date</th>
+                                        <th>Status</th>
+                                        <th>Total Fees</th>
+                                        <th>Paid</th>
+                                        <th>Outstanding</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for enrollment in enrollments %}
+                                    <tr>
+                                        <td>{{ enrollment.student.student_name }}</td>
+                                        <td>{{ enrollment.course.name }}</td>
+                                        <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if enrollment.status == 'active' %}success{% elif enrollment.status == 'completed' %}primary{% elif enrollment.status == 'pending' %}warning{% elif enrollment.status == 'dropped' %}danger{% else %}secondary{% endif %}">
+                                                {{ enrollment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-bold">{{ enrollment.get_total_fees }} KWD</td>
+                                        <td class="fw-bold text-success">{{ enrollment.get_total_paid }} KWD</td>
+                                        <td class="fw-bold {% if enrollment.get_outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ enrollment.get_outstanding_balance }} KWD
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'enrollment_detail' enrollment.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if enrollment.get_outstanding_balance > 0 %}
+                                                <a href="{% url 'payment_create' %}" class="btn btn-success btn-sm" title="Record Payment">
+                                                    <i class="fas fa-credit-card"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                            <nav aria-label="Enrollment pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No enrollments found</h5>
+                            <p class="text-muted">Start by enrolling your first student.</p>
+                            <a href="{% url 'enrollment_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> New Enrollment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

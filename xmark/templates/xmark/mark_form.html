@@ -1,0 +1,307 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'mark_list' %}">Marks</a></li>
+    <li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'mark_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-journal-plus me-1"></i>
+                    {{ title }}
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Student Selection -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.student.id_for_label }}" class="form-label">
+                                    Student <span class="text-danger">*</span>
+                                </label>
+                                {{ form.student }}
+                                {% if form.student.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.student.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Subject Selection -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label">
+                                    Subject <span class="text-danger">*</span>
+                                </label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.subject.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Assessment Type -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.assessment_type.id_for_label }}" class="form-label">
+                                    Assessment Type <span class="text-danger">*</span>
+                                </label>
+                                {{ form.assessment_type }}
+                                {% if form.assessment_type.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.assessment_type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Assessment Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.assessment_date.id_for_label }}" class="form-label">
+                                    Assessment Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.assessment_date }}
+                                {% if form.assessment_date.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.assessment_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Marks Obtained -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.marks_obtained.id_for_label }}" class="form-label">
+                                    Marks Obtained <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.marks_obtained }}
+                                    <span class="input-group-text">points</span>
+                                </div>
+                                {% if form.marks_obtained.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.marks_obtained.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Total Marks -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.total_marks.id_for_label }}" class="form-label">
+                                    Total Marks <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.total_marks }}
+                                    <span class="input-group-text">points</span>
+                                </div>
+                                {% if form.total_marks.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.total_marks.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Submission Date -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.submission_date.id_for_label }}" class="form-label">
+                                    Submission Date
+                                </label>
+                                {{ form.submission_date }}
+                                {% if form.submission_date.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.submission_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Optional: When student submitted the work</div>
+                            </div>
+                            
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    Status
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.status.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Remarks -->
+                        <div class="mb-3">
+                            <label for="{{ form.remarks.id_for_label }}" class="form-label">
+                                Remarks
+                            </label>
+                            {{ form.remarks }}
+                            {% if form.remarks.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.remarks.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Public remarks visible to students</div>
+                        </div>
+                        
+                        <!-- Private Notes -->
+                        <div class="mb-3">
+                            <label for="{{ form.private_notes.id_for_label }}" class="form-label">
+                                Private Notes
+                            </label>
+                            {{ form.private_notes }}
+                            {% if form.private_notes.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.private_notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Internal notes (not visible to students)</div>
+                        </div>
+                        
+                        <!-- Calculated Fields Display (if editing) -->
+                        {% if mark %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Percentage</h5>
+                                            <h3 class="text-primary">
+                                                {% if mark.percentage %}
+                                                    {{ mark.percentage|floatformat:1 }}%
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Grade</h5>
+                                            <h3 class="text-success">
+                                                {% if mark.grade %}
+                                                    {{ mark.grade }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Grade Points</h5>
+                                            <h3 class="text-info">
+                                                {% if mark.grade_points %}
+                                                    {{ mark.grade_points }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Percentage, grade, and grade points are calculated automatically when you save.
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'mark_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> 
+                                {% if mark %}Update Mark{% else %}Save Mark{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-calculate percentage on mark input change
+        const marksObtainedInput = document.getElementById('{{ form.marks_obtained.id_for_label }}');
+        const totalMarksInput = document.getElementById('{{ form.total_marks.id_for_label }}');
+        
+        function calculatePercentage() {
+            const obtained = parseFloat(marksObtainedInput.value) || 0;
+            const total = parseFloat(totalMarksInput.value) || 0;
+            
+            if (total > 0) {
+                const percentage = (obtained / total) * 100;
+                // You could display this in a preview area if needed
+                console.log('Calculated percentage:', percentage.toFixed(1) + '%');
+            }
+        }
+        
+        if (marksObtainedInput && totalMarksInput) {
+            marksObtainedInput.addEventListener('input', calculatePercentage);
+            totalMarksInput.addEventListener('input', calculatePercentage);
+        }
+        
+        // Validate marks obtained doesn't exceed total marks
+        function validateMarks() {
+            const obtained = parseFloat(marksObtainedInput.value) || 0;
+            const total = parseFloat(totalMarksInput.value) || 0;
+            
+            if (obtained > total) {
+                marksObtainedInput.setCustomValidity('Marks obtained cannot exceed total marks');
+            } else {
+                marksObtainedInput.setCustomValidity('');
+            }
+        }
+        
+        if (marksObtainedInput && totalMarksInput) {
+            marksObtainedInput.addEventListener('input', validateMarks);
+            totalMarksInput.addEventListener('input', validateMarks);
+        }
+    });
+</script>
+{% endblock %} 

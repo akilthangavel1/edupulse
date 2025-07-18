@@ -1,0 +1,562 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Onboarding Application - {{ onboarding.first_name }} {{ onboarding.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-user-check"></i> Faculty Onboarding Application
+                    </h1>
+                    <p class="text-muted">{{ onboarding.request_id }} - {{ onboarding.first_name }} {{ onboarding.last_name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_onboarding_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Application Details -->
+                <div class="col-lg-8">
+                    <!-- Application Status Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-info-circle"></i> Application Status
+                                </h6>
+                                {% if onboarding.status == 'pending' %}
+                                    <span class="badge badge-warning badge-lg">{{ onboarding.get_status_display }}</span>
+                                {% elif onboarding.status == 'under_review' %}
+                                    <span class="badge badge-info badge-lg">{{ onboarding.get_status_display }}</span>
+                                {% elif onboarding.status == 'approved' %}
+                                    <span class="badge badge-success badge-lg">{{ onboarding.get_status_display }}</span>
+                                {% elif onboarding.status == 'rejected' %}
+                                    <span class="badge badge-danger badge-lg">{{ onboarding.get_status_display }}</span>
+                                {% else %}
+                                    <span class="badge badge-secondary badge-lg">{{ onboarding.get_status_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Request ID:</strong>
+                                        <span>{{ onboarding.request_id }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Application Date:</strong>
+                                        <span>{{ onboarding.application_date|date:"M d, Y g:i A" }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Status:</strong>
+                                        <span>{{ onboarding.get_status_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if onboarding.reviewed_by %}
+                                    <div class="detail-item">
+                                        <strong>Reviewed By:</strong>
+                                        <span>{{ onboarding.reviewed_by.get_full_name|default:onboarding.reviewed_by.username }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if onboarding.review_date %}
+                                    <div class="detail-item">
+                                        <strong>Review Date:</strong>
+                                        <span>{{ onboarding.review_date|date:"M d, Y g:i A" }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if onboarding.created_faculty %}
+                                    <div class="detail-item">
+                                        <strong>Faculty Profile:</strong>
+                                        <a href="{% url 'faculty_detail' onboarding.created_faculty.pk %}">{{ onboarding.created_faculty.get_full_name }}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-user"></i> Personal Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>First Name:</strong>
+                                        <span>{{ onboarding.first_name }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Last Name:</strong>
+                                        <span>{{ onboarding.last_name }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Email:</strong>
+                                        <a href="mailto:{{ onboarding.email }}">{{ onboarding.email }}</a>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Phone:</strong>
+                                        <a href="tel:{{ onboarding.phone }}">{{ onboarding.phone }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-graduation-cap"></i> Professional Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Qualification:</strong>
+                                        <span>{{ onboarding.get_qualification_display }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Specialization:</strong>
+                                        <span>{{ onboarding.specialization }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Experience:</strong>
+                                        <span>{{ onboarding.experience_years }} years</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Preferred Employment:</strong>
+                                        <span>{{ onboarding.get_preferred_employment_type_display }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Expected Rate:</strong>
+                                        <span>{{ onboarding.expected_hourly_rate|default:"Not specified" }} {% if onboarding.expected_hourly_rate %}KWD/hour{% endif %}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if onboarding.availability_notes %}
+                            <hr>
+                            <div class="detail-item">
+                                <strong>Availability Notes:</strong>
+                                <p class="mt-2">{{ onboarding.availability_notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Preferred Courses Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-book"></i> Preferred Courses ({{ onboarding.preferred_courses.count }})
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if onboarding.preferred_courses.exists %}
+                                <div class="row">
+                                    {% for course in onboarding.preferred_courses.all %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="course-badge">
+                                                <i class="fas fa-book-open"></i>
+                                                <strong>{{ course.name }}</strong>
+                                                <small class="text-muted d-block">{{ course.course_code }}</small>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No preferred courses specified</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Documents Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-file-alt"></i> Documents
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% if onboarding.cv_file %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="document-item">
+                                        <i class="fas fa-file-pdf text-danger"></i>
+                                        <div>
+                                            <strong>CV/Resume</strong>
+                                            <div>
+                                                <a href="{{ onboarding.cv_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if onboarding.certificates_file %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="document-item">
+                                        <i class="fas fa-certificate text-warning"></i>
+                                        <div>
+                                            <strong>Certificates</strong>
+                                            <div>
+                                                <a href="{{ onboarding.certificates_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if onboarding.other_documents %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="document-item">
+                                        <i class="fas fa-file text-info"></i>
+                                        <div>
+                                            <strong>Other Documents</strong>
+                                            <div>
+                                                <a href="{{ onboarding.other_documents.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {% if not onboarding.cv_file and not onboarding.certificates_file and not onboarding.other_documents %}
+                                <p class="text-muted text-center py-3">No documents uploaded</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Review Notes Card -->
+                    {% if onboarding.review_notes or onboarding.approval_notes %}
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-comments"></i> Review Notes
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if onboarding.review_notes %}
+                            <div class="review-note">
+                                <strong>Review Notes:</strong>
+                                <p class="mt-2">{{ onboarding.review_notes }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if onboarding.approval_notes %}
+                            <div class="review-note">
+                                <strong>Approval Notes:</strong>
+                                <p class="mt-2">{{ onboarding.approval_notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Quick Actions Card -->
+                    {% if can_approve or can_reject %}
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-tools"></i> Quick Actions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                {% if can_approve %}
+                                <button type="button" class="btn btn-success" onclick="approveApplication()">
+                                    <i class="fas fa-check"></i> Approve Application
+                                </button>
+                                {% endif %}
+                                
+                                {% if can_reject %}
+                                <button type="button" class="btn btn-danger" onclick="rejectApplication()">
+                                    <i class="fas fa-times"></i> Reject Application
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="text-muted small">
+                                <p><i class="fas fa-info-circle"></i> <strong>Note:</strong> Approving will create a faculty profile automatically</p>
+                                <p><i class="fas fa-shield-alt"></i> <strong>Security:</strong> All actions are logged and auditable</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Application Summary Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-pie"></i> Application Summary
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-user"></i> Applicant:</span>
+                                    <strong>{{ onboarding.first_name }} {{ onboarding.last_name }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-graduation-cap"></i> Qualification:</span>
+                                    <strong>{{ onboarding.get_qualification_display }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-clock"></i> Experience:</span>
+                                    <strong>{{ onboarding.experience_years }} years</strong>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-book"></i> Courses:</span>
+                                    <strong>{{ onboarding.preferred_courses.count }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-file"></i> Documents:</span>
+                                    <strong>
+                                        {% if onboarding.cv_file %}1{% else %}0{% endif %} + 
+                                        {% if onboarding.certificates_file %}1{% else %}0{% endif %} + 
+                                        {% if onboarding.other_documents %}1{% else %}0{% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-address-card"></i> Contact Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope text-primary"></i>
+                                <div>
+                                    <strong>Email</strong>
+                                    <div><a href="mailto:{{ onboarding.email }}">{{ onboarding.email }}</a></div>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone text-primary"></i>
+                                <div>
+                                    <strong>Phone</strong>
+                                    <div><a href="tel:{{ onboarding.phone }}">{{ onboarding.phone }}</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approval Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel">
+                    <i class="fas fa-check-circle text-success"></i> Approve Onboarding Application
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{% url 'faculty_onboarding_approve' onboarding.pk %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Are you sure you want to approve this onboarding application?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>This will:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Create a new faculty profile</li>
+                            <li>Generate faculty ID automatically</li>
+                            <li>Set up course assignments</li>
+                            <li>Send notification email to applicant</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="approval_notes">Approval Notes (Optional)</label>
+                        <textarea name="approval_notes" id="approval_notes" class="form-control" rows="3" placeholder="Add any notes about the approval..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Approve Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="fas fa-times-circle text-danger"></i> Reject Onboarding Application
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{% url 'faculty_onboarding_reject' onboarding.pk %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Are you sure you want to reject this onboarding application?</p>
+                    <div class="form-group">
+                        <label for="rejection_notes">Rejection Reason <span class="text-danger">*</span></label>
+                        <textarea name="rejection_notes" id="rejection_notes" class="form-control" rows="3" placeholder="Please provide a detailed reason for rejection..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Reject Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function approveApplication() {
+    $('#approveModal').modal('show');
+}
+
+function rejectApplication() {
+    $('#rejectModal').modal('show');
+}
+</script>
+
+<style>
+.detail-item {
+    margin-bottom: 12px;
+}
+
+.detail-item strong {
+    display: inline-block;
+    width: 140px;
+    color: #5a5c69;
+}
+
+.summary-item {
+    margin-bottom: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item {
+    display: flex;
+    align-items-center;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item i {
+    margin-right: 15px;
+    width: 20px;
+    font-size: 1.1em;
+}
+
+.document-item {
+    display: flex;
+    align-items-center;
+    padding: 15px;
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    background-color: #f8f9fc;
+}
+
+.document-item i {
+    margin-right: 15px;
+    font-size: 1.5em;
+}
+
+.course-badge {
+    padding: 10px;
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    background-color: #f8f9fc;
+}
+
+.course-badge i {
+    color: #4e73df;
+    margin-right: 8px;
+}
+
+.badge-lg {
+    font-size: 0.9em;
+    padding: 8px 12px;
+}
+
+.review-note {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #f8f9fc;
+    border-left: 4px solid #4e73df;
+    border-radius: 3px;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+</style>
+{% endblock %} 

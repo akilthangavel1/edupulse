@@ -1,0 +1,225 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Kit Management - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-box"></i> Kit Management</h2>
+                <div>
+                    <a href="{% url 'kit_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Kit
+                    </a>
+                    <a href="{% url 'course_kit_list' %}" class="btn btn-info">
+                        <i class="fas fa-link"></i> Course-Kit Links
+                    </a>
+                    <a href="{% url 'kit_fee_list' %}" class="btn btn-success">
+                        <i class="fas fa-money-bill"></i> Kit Fees
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Kits</h5>
+                                    <h3>{{ total_kits }}</h3>
+                                </div>
+                                <i class="fas fa-box fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Available</h5>
+                                    <h3>{{ available_kits }}</h3>
+                                </div>
+                                <i class="fas fa-check-circle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Low Stock</h5>
+                                    <h3>{{ low_stock_kits }}</h3>
+                                </div>
+                                <i class="fas fa-exclamation-triangle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Out of Stock</h5>
+                                    <h3>{{ total_kits|add:'-'|add:available_kits }}</h3>
+                                </div>
+                                <i class="fas fa-times-circle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> Search & Filter Kits</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ search_form.search_query.label_tag }}
+                            {{ search_form.search_query }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.status.label_tag }}
+                            {{ search_form.status }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.is_mandatory.label_tag }}
+                            {{ search_form.is_mandatory }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.min_price.label_tag }}
+                            {{ search_form.min_price }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.max_price.label_tag }}
+                            {{ search_form.max_price }}
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">Filter</label>
+                            <button type="submit" class="btn btn-primary d-block">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kits List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Kits ({{ kits|length }} of {{ total_kits }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if kits %}
+                        <div class="row">
+                            {% for kit in kits %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 {% if kit.is_low_stock %}border-warning{% elif not kit.is_available %}border-danger{% else %}border-success{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">{{ kit.name }}</h6>
+                                            <span class="badge badge-{% if kit.status == 'available' %}success{% elif kit.status == 'out_of_stock' %}warning{% else %}danger{% endif %}">
+                                                {{ kit.get_status_display }}
+                                            </span>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="text-muted small">{{ kit.kit_code }}</p>
+                                            <p class="card-text">{{ kit.description|truncatewords:15 }}</p>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Price:</small><br>
+                                                    <strong>{{ kit.price }} KWD</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Stock:</small><br>
+                                                    <span class="{% if kit.is_low_stock %}text-warning{% elif kit.stock_quantity == 0 %}text-danger{% else %}text-success{% endif %}">
+                                                        {{ kit.stock_quantity }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if kit.is_mandatory %}
+                                                <span class="badge badge-info">Mandatory</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Optional</span>
+                                            {% endif %}
+                                            
+                                            {% if kit.is_low_stock %}
+                                                <span class="badge badge-warning">Low Stock</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="btn-group w-100" role="group">
+                                                <a href="{% url 'kit_detail' kit.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="{% url 'kit_edit' kit.pk %}" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="{% url 'kit_delete' kit.pk %}" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                            <nav aria-label="Kits pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No kits found</h5>
+                            <p class="text-muted">Start by creating your first kit.</p>
+                            <a href="{% url 'kit_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Kit
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,438 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{{ faculty.get_full_name }} - Faculty Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-user-circle"></i> Faculty Profile
+                    </h1>
+                    <p class="text-muted">{{ faculty.get_full_name }} - {{ faculty.faculty_id }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_edit' faculty.pk %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                    <a href="{% url 'faculty_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Faculty Profile Card -->
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-user"></i> Profile Information
+                            </h6>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if faculty.profile_picture %}
+                                <img src="{{ faculty.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="max-width: 150px; max-height: 150px;">
+                            {% else %}
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <h4 class="mb-1">{{ faculty.get_full_name }}</h4>
+                            <p class="text-muted mb-1">{{ faculty.specialization }}</p>
+                            <p class="text-muted mb-3">{{ faculty.get_qualification_display }}</p>
+                            
+                            {% if faculty.status == 'active' %}
+                                <span class="badge badge-success badge-lg">{{ faculty.get_status_display }}</span>
+                            {% elif faculty.status == 'inactive' %}
+                                <span class="badge badge-secondary badge-lg">{{ faculty.get_status_display }}</span>
+                            {% elif faculty.status == 'suspended' %}
+                                <span class="badge badge-warning badge-lg">{{ faculty.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge badge-danger badge-lg">{{ faculty.get_status_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-address-card"></i> Contact Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope text-primary"></i>
+                                <strong>Email:</strong>
+                                <a href="mailto:{{ faculty.email }}">{{ faculty.email }}</a>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone text-primary"></i>
+                                <strong>Phone:</strong>
+                                <a href="tel:{{ faculty.phone }}">{{ faculty.phone }}</a>
+                            </div>
+                            {% if faculty.emergency_contact %}
+                            <div class="contact-item">
+                                <i class="fas fa-phone-alt text-warning"></i>
+                                <strong>Emergency:</strong>
+                                <a href="tel:{{ faculty.emergency_contact }}">{{ faculty.emergency_contact }}</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Statistics Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-bar"></i> Monthly Statistics
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="stat-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Hours This Month:</span>
+                                    <strong>{{ monthly_stats.hours_this_month|default:0 }}</strong>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Payment This Month:</span>
+                                    <strong>{{ monthly_stats.payment_this_month|default:0 }} KWD</strong>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Active Courses:</span>
+                                    <strong>{{ active_courses.count }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Professional Details Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-graduation-cap"></i> Professional Details
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Faculty ID:</strong>
+                                        <span>{{ faculty.faculty_id }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Qualification:</strong>
+                                        <span>{{ faculty.get_qualification_display }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Experience:</strong>
+                                        <span>{{ faculty.experience_years }} years</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Employment Type:</strong>
+                                        <span>{{ faculty.get_employment_type_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Join Date:</strong>
+                                        <span>{{ faculty.join_date|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Hourly Rate:</strong>
+                                        <span>{{ faculty.hourly_rate|default:"Not set" }} KWD</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Specialization:</strong>
+                                        <span>{{ faculty.specialization }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Status:</strong>
+                                        <span>{{ faculty.get_status_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if faculty.bio %}
+                            <hr>
+                            <div class="detail-item">
+                                <strong>Biography:</strong>
+                                <p class="mt-2">{{ faculty.bio }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Active Courses Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-book"></i> Teaching Courses ({{ active_courses.count }})
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if active_courses %}
+                                <div class="row">
+                                    {% for course in active_courses %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="course-card">
+                                                <h6 class="mb-1">{{ course.name }}</h6>
+                                                <small class="text-muted">{{ course.course_code }}</small>
+                                                <p class="mb-0 small">{{ course.description|truncatechars:50 }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No active courses assigned</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities Tabs -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <ul class="nav nav-tabs card-header-tabs" id="activitiesTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" id="attendance-tab" data-toggle="tab" href="#attendance" role="tab" aria-controls="attendance" aria-selected="true">
+                                        <i class="fas fa-calendar-check"></i> Recent Attendance
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="payments-tab" data-toggle="tab" href="#payments" role="tab" aria-controls="payments" aria-selected="false">
+                                        <i class="fas fa-money-bill-wave"></i> Recent Payments
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="leave-tab" data-toggle="tab" href="#leave" role="tab" aria-controls="leave" aria-selected="false">
+                                        <i class="fas fa-calendar-times"></i> Leave Requests
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="activitiesTabContent">
+                                <!-- Attendance Tab -->
+                                <div class="tab-pane fade show active" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+                                    {% if recent_attendance %}
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Course</th>
+                                                        <th>Status</th>
+                                                        <th>Hours</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for attendance in recent_attendance %}
+                                                        <tr>
+                                                            <td>{{ attendance.date|date:"M d" }}</td>
+                                                            <td>{{ attendance.course.name }}</td>
+                                                            <td>
+                                                                {% if attendance.status == 'present' %}
+                                                                    <span class="badge badge-success">{{ attendance.get_status_display }}</span>
+                                                                {% elif attendance.status == 'late' %}
+                                                                    <span class="badge badge-warning">{{ attendance.get_status_display }}</span>
+                                                                {% elif attendance.status == 'absent' %}
+                                                                    <span class="badge badge-danger">{{ attendance.get_status_display }}</span>
+                                                                {% else %}
+                                                                    <span class="badge badge-info">{{ attendance.get_status_display }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>{{ attendance.get_duration_hours|default:"-" }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center py-3">No recent attendance records</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Payments Tab -->
+                                <div class="tab-pane fade" id="payments" role="tabpanel" aria-labelledby="payments-tab">
+                                    {% if recent_payments %}
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Payment ID</th>
+                                                        <th>Period</th>
+                                                        <th>Amount</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for payment in recent_payments %}
+                                                        <tr>
+                                                            <td>{{ payment.payment_id }}</td>
+                                                            <td>{{ payment.period_start|date:"M d" }} - {{ payment.period_end|date:"M d" }}</td>
+                                                            <td>{{ payment.net_amount }} KWD</td>
+                                                            <td>
+                                                                {% if payment.status == 'paid' %}
+                                                                    <span class="badge badge-success">{{ payment.get_status_display }}</span>
+                                                                {% elif payment.status == 'approved' %}
+                                                                    <span class="badge badge-info">{{ payment.get_status_display }}</span>
+                                                                {% else %}
+                                                                    <span class="badge badge-warning">{{ payment.get_status_display }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center py-3">No recent payment records</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Leave Requests Tab -->
+                                <div class="tab-pane fade" id="leave" role="tabpanel" aria-labelledby="leave-tab">
+                                    {% if leave_requests %}
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Request ID</th>
+                                                        <th>Type</th>
+                                                        <th>Date Range</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for leave in leave_requests %}
+                                                        <tr>
+                                                            <td>{{ leave.request_id }}</td>
+                                                            <td>{{ leave.get_request_type_display }}</td>
+                                                            <td>{{ leave.start_date|date:"M d" }} - {{ leave.end_date|date:"M d" }}</td>
+                                                            <td>
+                                                                {% if leave.status == 'approved' %}
+                                                                    <span class="badge badge-success">{{ leave.get_status_display }}</span>
+                                                                {% elif leave.status == 'pending' %}
+                                                                    <span class="badge badge-warning">{{ leave.get_status_display }}</span>
+                                                                {% else %}
+                                                                    <span class="badge badge-danger">{{ leave.get_status_display }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center py-3">No leave requests</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-map-marker-alt"></i> Address Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <address>
+                                {{ faculty.address_line_1 }}<br>
+                                {% if faculty.address_line_2 %}
+                                    {{ faculty.address_line_2 }}<br>
+                                {% endif %}
+                                {{ faculty.city }}, {{ faculty.state }}<br>
+                                {{ faculty.country }} - {{ faculty.postal_code }}
+                            </address>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-item {
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item i {
+    width: 20px;
+    margin-right: 8px;
+}
+
+.detail-item {
+    margin-bottom: 12px;
+}
+
+.detail-item strong {
+    display: inline-block;
+    width: 140px;
+    color: #5a5c69;
+}
+
+.stat-item {
+    margin-bottom: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.course-card {
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    padding: 12px;
+    background-color: #f8f9fc;
+}
+
+.course-card h6 {
+    color: #5a5c69;
+}
+
+.badge-lg {
+    font-size: 0.9em;
+    padding: 8px 12px;
+}
+
+.nav-tabs .nav-link {
+    color: #5a5c69;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #4e73df;
+    border-bottom-color: #4e73df;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: #4e73df;
+}
+</style>
+{% endblock %} 

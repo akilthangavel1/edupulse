@@ -1,0 +1,36 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Faculty List{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-users"></i> Faculty List
+                    </h1>
+                    <p class="text-muted">Manage all faculty members</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Faculty
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content will be added here -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <p class="text-center text-muted py-5">
+                        Faculty management features are being implemented.<br>
+                        <small>This page will show the complete faculty listing with search and filter options.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

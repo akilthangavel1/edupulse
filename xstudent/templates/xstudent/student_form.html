@@ -1,0 +1,409 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Student{% else %}Register Student{% endif %} - EduPulse{% endblock %}
+
+{% block header %}{% if form.instance.pk %}Edit Student{% else %}Register New Student{% endif %}{% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-{% if form.instance.pk %}edit{% else %}user-plus{% endif %} me-2"></i>
+                        {% if form.instance.pk %}Edit Student Information{% else %}Comprehensive Student Registration Form{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Student Registration Form -->
+                        <div class="row">
+                            <!-- Row 1: Student Name, Gender, School Name -->
+                            <div class="col-md-4 mb-3">
+                                {{ form.student_name.label_tag }}
+                                {{ form.student_name }}
+                                {% if form.student_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.student_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.gender.label_tag }}
+                                {{ form.gender }}
+                                {% if form.gender.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.gender.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.school_name.label_tag }}
+                                {{ form.school_name }}
+                                {% if form.school_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.school_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 2: Grade, Program, Date of Birth -->
+                            <div class="col-md-4 mb-3">
+                                {{ form.grade.label_tag }}
+                                {{ form.grade }}
+                                {% if form.grade.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.grade.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.program.label_tag }}
+                                {{ form.program }}
+                                {% if form.program.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.program.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.date_of_birth.label_tag }}
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.date_of_birth.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 3: Email ID, Student Profile Picture -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.email_id.label_tag }}
+                                {{ form.email_id }}
+                                {% if form.email_id.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.email_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.student_profile_picture.label_tag }}
+                                {{ form.student_profile_picture }}
+                                {% if form.student_profile_picture.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.student_profile_picture.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Separator between Student and Family Information -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                            </div>
+
+                            <!-- Row 4: Father Name, Father Occupation, Father Company Name -->
+                            <div class="col-md-4 mb-3">
+                                {{ form.father_name.label_tag }}
+                                {{ form.father_name }}
+                                {% if form.father_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.father_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.father_occupation.label_tag }}
+                                {{ form.father_occupation }}
+                                {% if form.father_occupation.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.father_occupation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.father_company_name.label_tag }}
+                                {{ form.father_company_name }}
+                                {% if form.father_company_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.father_company_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 5: Father Mobile No, Father Email ID -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.father_mobile_no.label_tag }}
+                                {{ form.father_mobile_no }}
+                                {% if form.father_mobile_no.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.father_mobile_no.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.father_email_id.label_tag }}
+                                {{ form.father_email_id }}
+                                {% if form.father_email_id.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.father_email_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Separator between Father and Mother Information -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                            </div>
+
+                            <!-- Row 6: Mother Name, Mother Occupation, Mother Company Name -->
+                            <div class="col-md-4 mb-3">
+                                {{ form.mother_name.label_tag }}
+                                {{ form.mother_name }}
+                                {% if form.mother_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mother_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.mother_occupation.label_tag }}
+                                {{ form.mother_occupation }}
+                                {% if form.mother_occupation.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mother_occupation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.mother_company_name.label_tag }}
+                                {{ form.mother_company_name }}
+                                {% if form.mother_company_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mother_company_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 7: Mother Mobile No, Mother Email ID -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.mother_mobile_no.label_tag }}
+                                {{ form.mother_mobile_no }}
+                                {% if form.mother_mobile_no.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mother_mobile_no.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.mother_email_id.label_tag }}
+                                {{ form.mother_email_id }}
+                                {% if form.mother_email_id.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mother_email_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Separator between Mother and Guardian Information -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                            </div>
+
+                            <!-- Row 8: Guardian Name, Guardian Relationship, Guardian Mobile No -->
+                            <div class="col-md-4 mb-3">
+                                {{ form.guardian_name.label_tag }}
+                                {{ form.guardian_name }}
+                                {% if form.guardian_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.guardian_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.guardian_relationship.label_tag }}
+                                {{ form.guardian_relationship }}
+                                {% if form.guardian_relationship.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.guardian_relationship.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.guardian_mobile_no.label_tag }}
+                                {{ form.guardian_mobile_no }}
+                                {% if form.guardian_mobile_no.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.guardian_mobile_no.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Separator between Guardian and Siblings Information -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                            </div>
+
+                            <!-- Row 9: Sibling 1 Name, Sibling 1 Age -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.sibling_1_name.label_tag }}
+                                {{ form.sibling_1_name }}
+                                {% if form.sibling_1_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.sibling_1_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.sibling_1_age.label_tag }}
+                                {{ form.sibling_1_age }}
+                                {% if form.sibling_1_age.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.sibling_1_age.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 10: Sibling 2 Name, Sibling 2 Age -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.sibling_2_name.label_tag }}
+                                {{ form.sibling_2_name }}
+                                {% if form.sibling_2_name.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.sibling_2_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.sibling_2_age.label_tag }}
+                                {{ form.sibling_2_age }}
+                                {% if form.sibling_2_age.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.sibling_2_age.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Separator between Siblings and Address Information -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                            </div>
+
+                            <!-- Row 11: Address line 1, Address line 2 -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.address_line_1.label_tag }}
+                                {{ form.address_line_1 }}
+                                {% if form.address_line_1.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.address_line_1.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.address_line_2.label_tag }}
+                                {{ form.address_line_2 }}
+                                {% if form.address_line_2.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.address_line_2.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 12: Area, Country -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.area.label_tag }}
+                                {{ form.area }}
+                                {% if form.area.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.area.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.country.label_tag }}
+                                {{ form.country }}
+                                {% if form.country.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.country.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 13: State/Emirates/Province, City -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.state_emirates_province.label_tag }}
+                                {{ form.state_emirates_province }}
+                                {% if form.state_emirates_province.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.state_emirates_province.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.city.label_tag }}
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.city.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 14: Postal Code, Telephone -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.postal_code.label_tag }}
+                                {{ form.postal_code }}
+                                {% if form.postal_code.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.postal_code.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.telephone.label_tag }}
+                                {{ form.telephone }}
+                                {% if form.telephone.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.telephone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Row 15: Select Mobile Number, Mobile No -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.select_mobile_number.label_tag }}
+                                {{ form.select_mobile_number }}
+                                {% if form.select_mobile_number.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.select_mobile_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.mobile_no.label_tag }}
+                                {{ form.mobile_no }}
+                                {% if form.mobile_no.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.mobile_no.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-5">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary btn-lg">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                    <div>
+                                        {% if form.instance.pk and form.instance.status == 'draft' %}
+                                            <!-- Draft actions -->
+                                            <button type="submit" name="action" value="save_draft" class="btn btn-warning btn-lg me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Update Draft
+                                            </button>
+                                            <button type="submit" name="action" value="activate" class="btn btn-success btn-lg">
+                                                <i class="fas fa-check me-2"></i>Activate Student
+                                            </button>
+                                        {% elif form.instance.pk %}
+                                            <!-- Regular update -->
+                                            <button type="submit" name="action" value="save_draft" class="btn btn-warning btn-lg me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Save as Draft
+                                            </button>
+                                            <button type="submit" name="action" value="update" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-save me-2"></i>Update Student
+                                            </button>
+                                        {% else %}
+                                            <!-- New student -->
+                                            <button type="submit" name="action" value="save_draft" class="btn btn-warning btn-lg me-2">
+                                                <i class="fas fa-file-alt me-2"></i>Save as Draft
+                                            </button>
+                                            <button type="submit" name="action" value="register" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-user-plus me-2"></i>Register Student
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add Bootstrap validation classes
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            const errorDiv = input.parentNode.querySelector('.invalid-feedback');
+            if (errorDiv) {
+                input.classList.add('is-invalid');
+            }
+        });
+        
+        // Real-time validation
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+
+        // Smooth scroll to first error if form submission has errors
+        const firstError = document.querySelector('.invalid-feedback');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+</script>
+{% endblock %}
+ 

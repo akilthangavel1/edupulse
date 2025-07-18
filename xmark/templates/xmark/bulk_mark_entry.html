@@ -1,0 +1,279 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Bulk Mark Entry{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'mark_list' %}">Marks</a></li>
+    <li class="breadcrumb-item active">Bulk Entry</li>
+{% endblock %}
+
+{% block page_title %}Bulk Mark Entry{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'mark_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Marks
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Use this form to enter marks for multiple students at once for the same assessment.
+    </div>
+
+    <form method="post" id="bulk-mark-form">
+        {% csrf_token %}
+        
+        <!-- Assessment Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-clipboard-check me-1"></i>
+                Assessment Information
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.subject.id_for_label }}" class="form-label">
+                            Subject <span class="text-danger">*</span>
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.subject.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.assessment_type.id_for_label }}" class="form-label">
+                            Assessment Type <span class="text-danger">*</span>
+                        </label>
+                        {{ form.assessment_type }}
+                        {% if form.assessment_type.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.assessment_type.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.total_marks.id_for_label }}" class="form-label">
+                            Total Marks <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            {{ form.total_marks }}
+                            <span class="input-group-text">points</span>
+                        </div>
+                        {% if form.total_marks.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.total_marks.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.assessment_date.id_for_label }}" class="form-label">
+                            Assessment Date <span class="text-danger">*</span>
+                        </label>
+                        {{ form.assessment_date }}
+                        {% if form.assessment_date.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.assessment_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Marks -->
+        {% if students %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="bi bi-people me-1"></i>
+                        Student Marks ({{ students.count }} students)
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllMarks()">
+                        Clear All
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Student ID</th>
+                                    <th>Marks Obtained</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr>
+                                        <td class="fw-bold">{{ student.student_name }}</td>
+                                        <td>{{ student.id }}</td>
+                                        <td>
+                                            <div class="input-group input-group-sm" style="max-width: 150px;">
+                                                <input type="number" 
+                                                       class="form-control mark-input" 
+                                                       name="marks_{{ student.id }}"
+                                                       min="0" 
+                                                       step="0.01"
+                                                       placeholder="0.00"
+                                                       data-student-id="{{ student.id }}"
+                                                       data-student-name="{{ student.student_name }}">
+                                                <span class="input-group-text">pts</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-warning"
+                                                    onclick="clearMark('{{ student.id }}')"
+                                                    title="Clear marks for this student">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3 text-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Save All Marks
+                        </button>
+                        <a href="{% url 'mark_list' %}" class="btn btn-secondary btn-lg ms-2">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-people fs-1 text-muted"></i>
+                    <h4 class="text-muted mt-3">No Students Found</h4>
+                    <p class="text-muted">Please select a subject first to see enrolled students.</p>
+                </div>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalMarksInput = document.getElementById('{{ form.total_marks.id_for_label }}');
+        const markInputs = document.querySelectorAll('.mark-input');
+        
+        // Validate marks don't exceed total marks
+        function validateMark(input) {
+            const totalMarks = parseFloat(totalMarksInput.value) || 0;
+            const marksObtained = parseFloat(input.value) || 0;
+            
+            if (marksObtained > totalMarks && totalMarks > 0) {
+                input.setCustomValidity(`Marks cannot exceed ${totalMarks}`);
+                input.classList.add('is-invalid');
+            } else {
+                input.setCustomValidity('');
+                input.classList.remove('is-invalid');
+            }
+        }
+        
+        // Add validation to all mark inputs
+        markInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                validateMark(this);
+                updatePreview(this);
+            });
+        });
+        
+        // Validate when total marks changes
+        totalMarksInput.addEventListener('input', function() {
+            markInputs.forEach(validateMark);
+        });
+        
+        // Update percentage preview
+        function updatePreview(input) {
+            const totalMarks = parseFloat(totalMarksInput.value) || 0;
+            const marksObtained = parseFloat(input.value) || 0;
+            
+            if (totalMarks > 0 && marksObtained >= 0) {
+                const percentage = (marksObtained / totalMarks) * 100;
+                input.title = `${percentage.toFixed(1)}%`;
+            } else {
+                input.title = '';
+            }
+        }
+        
+        // Form submission validation
+        document.getElementById('bulk-mark-form').addEventListener('submit', function(e) {
+            let hasMarks = false;
+            let hasErrors = false;
+            
+            markInputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    hasMarks = true;
+                }
+                if (!input.checkValidity()) {
+                    hasErrors = true;
+                }
+            });
+            
+            if (!hasMarks) {
+                e.preventDefault();
+                alert('Please enter marks for at least one student.');
+                return false;
+            }
+            
+            if (hasErrors) {
+                e.preventDefault();
+                alert('Please fix the validation errors before submitting.');
+                return false;
+            }
+            
+            // Confirm submission
+            if (!confirm('Are you sure you want to save marks for all students?')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+    
+    // Clear individual mark
+    function clearMark(studentId) {
+        const input = document.querySelector(`input[name="marks_${studentId}"]`);
+        if (input) {
+            input.value = '';
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            input.title = '';
+        }
+    }
+    
+    // Clear all marks
+    function clearAllMarks() {
+        if (confirm('Are you sure you want to clear all entered marks?')) {
+            document.querySelectorAll('.mark-input').forEach(input => {
+                input.value = '';
+                input.classList.remove('is-invalid');
+                input.setCustomValidity('');
+                input.title = '';
+            });
+        }
+    }
+</script>
+{% endblock %} 

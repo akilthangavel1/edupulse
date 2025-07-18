@@ -1,0 +1,170 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}
+{% if attendance %}Edit Attendance - EduPulse{% else %}Record Attendance - EduPulse{% endif %}
+{% endblock %}
+
+{% block header %}
+{% if attendance %}Edit Attendance Record{% else %}Record Attendance{% endif %}
+{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+    {% if attendance %}
+    <a href="{% url 'attendance_detail' attendance.pk %}" class="btn btn-outline-info">
+        <i class="fas fa-eye"></i> View Details
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-{% if attendance %}edit{% else %}plus{% endif %}"></i>
+                    {% if attendance %}Edit Attendance for {{ attendance.student.student_name }}{% else %}Record New Attendance{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.student.label_tag }}
+                            {{ form.student }}
+                            {% if form.student.errors %}
+                                <div class="text-danger small">
+                                    {{ form.student.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date.label_tag }}
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                                <div class="text-danger small">
+                                    {{ form.date.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.status.label_tag }}
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small">
+                                    {{ form.status.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.time_in.label_tag }}
+                            {{ form.time_in }}
+                            {% if form.time_in.errors %}
+                                <div class="text-danger small">
+                                    {{ form.time_in.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.time_out.label_tag }}
+                            {{ form.time_out }}
+                            {% if form.time_out.errors %}
+                                <div class="text-danger small">
+                                    {{ form.time_out.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.notes.label_tag }}
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small">
+                                {{ form.notes.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Optional notes about the attendance record.</small>
+                    </div>
+
+                    <!-- Non-field errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'attendance_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if attendance %}Update Attendance{% else %}Record Attendance{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Tips for Recording Attendance
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Present:</strong> Student arrived on time and attended class</li>
+                    <li><strong>Absent:</strong> Student did not attend class</li>
+                    <li><strong>Late:</strong> Student arrived after the scheduled start time</li>
+                    <li><strong>Excused:</strong> Student was absent but with valid excuse (medical, family emergency, etc.)</li>
+                </ul>
+                <hr>
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-lightbulb"></i>
+                    Time in is required for "Present" status. Notes can be used to record additional information about the attendance.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Auto-fill time in when status is changed to present
+    $('#id_status').change(function() {
+        if ($(this).val() === 'present' && !$('#id_time_in').val()) {
+            var now = new Date();
+            var timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+            $('#id_time_in').val(timeString);
+        }
+    });
+    
+    // Validate time fields
+    $('#id_time_out').change(function() {
+        var timeIn = $('#id_time_in').val();
+        var timeOut = $(this).val();
+        
+        if (timeIn && timeOut && timeOut <= timeIn) {
+            alert('Time out must be after time in');
+            $(this).focus();
+        }
+    });
+});
+</script>
+{% endblock %} 

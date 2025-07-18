@@ -1,0 +1,235 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Dashboard - EduPulse{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'student_create' %}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Register New Student
+    </a>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Total Students</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ total_students }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Active Students</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ active_students }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Inactive Students</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ inactive_students }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-times fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">New This Month</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ recent_students|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Students by Grade Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Students by Grade
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Students -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-2"></i>Recently Registered Students
+                    </h6>
+                    <a href="{% url 'student_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_students %}
+                        <div class="list-group list-group-flush">
+                            {% for student in recent_students %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-3">
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                {{ student.student_name.0 }}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'student_detail' student.pk %}" class="text-decoration-none">
+                                                    {{ student.student_name }}
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">ID: {{ student.pk }} • {{ student.program }}</small>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success">
+                                                Active
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No students registered yet.</p>
+                            <a href="{% url 'student_create' %}" class="btn btn-primary">Register First Student</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'student_create' %}" class="btn btn-primary btn-block w-100">
+                                <i class="fas fa-user-plus me-2"></i>Register Student
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'student_list' %}" class="btn btn-outline-primary btn-block w-100">
+                                <i class="fas fa-list me-2"></i>View All Students
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'student_export' %}" class="btn btn-outline-success btn-block w-100">
+                                <i class="fas fa-download me-2"></i>Export Data
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="/admin/" class="btn btn-outline-secondary btn-block w-100">
+                                <i class="fas fa-cog me-2"></i>Admin Panel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Data for JavaScript -->
+{{ students_by_grade|json_script:"students-by-grade-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Students by Grade Chart
+    const ctx = document.getElementById('gradeChart').getContext('2d');
+    
+    // Get data from Django
+    const studentsData = JSON.parse(document.getElementById('students-by-grade-data').textContent);
+    
+    // Prepare chart data
+    const gradeLabels = [];
+    const gradeData = [];
+    
+    Object.entries(studentsData).forEach(([grade, count]) => {
+        gradeLabels.push(`Grade ${grade}`);
+        gradeData.push(count);
+    });
+    
+    const gradeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: gradeLabels,
+            datasets: [{
+                data: gradeData,
+                backgroundColor: [
+                    '#667eea',
+                    '#764ba2',
+                    '#11998e',
+                    '#38ef7d',
+                    '#ff6b6b'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %} 

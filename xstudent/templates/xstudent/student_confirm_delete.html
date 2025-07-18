@@ -1,0 +1,69 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Delete Student - EduPulse{% endblock %}
+
+{% block header %}Delete Student{% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Student
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Deletion
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 80px; height: 80px; font-size: 1.5rem;">
+                            {{ student.student_name.0 }}
+                        </div>
+                        <h4>{{ student.student_name }}</h4>
+                        <p class="text-muted">
+                            <i class="fas fa-id-card me-2"></i>ID: {{ student.pk }}
+                        </p>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. All student data will be permanently deleted.
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted">Student Information to be Deleted:</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Name:</strong> {{ student.student_name }}</li>
+                                <li><strong>Email:</strong> {{ student.email_id }}</li>
+                                <li><strong>Mobile:</strong> {{ student.mobile_no }}</li>
+                                <li><strong>Program:</strong> {{ student.program }}</li>
+                                <li><strong>Grade:</strong> {{ student.grade }}</li>
+                                <li><strong>Registration Date:</strong> {{ student.created_at|date:"F d, Y" }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form method="post" class="d-flex justify-content-between">
+                        {% csrf_token %}
+                        
+                        <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Yes, Delete Student
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,327 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Courses - EduPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+        border-left: 4px solid #007bff;
+    }
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .course-header {
+        margin-bottom: 1rem;
+    }
+    .course-code {
+        background: #007bff;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .course-status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+    .status-coming-soon { background: #fff3cd; color: #856404; }
+    .enrollment-progress {
+        height: 6px;
+        border-radius: 3px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+    .enrollment-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.3s ease;
+    }
+    .filter-section {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-graduation-cap text-primary me-2"></i>
+                        Courses Management
+                    </h1>
+                    <p class="text-muted mb-0">Manage course offerings and enrollment</p>
+                </div>
+                <div>
+                    <a href="{% url 'course_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_courses }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-graduation-cap fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_courses }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Results
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ courses|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                {{ search_form.search_query.label_tag }}
+                {{ search_form.search_query }}
+            </div>
+            <div class="col-md-2">
+                {{ search_form.course_type.label_tag }}
+                {{ search_form.course_type }}
+            </div>
+            <div class="col-md-2">
+                {{ search_form.status.label_tag }}
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-2">
+                {{ search_form.min_duration.label_tag }}
+                {{ search_form.min_duration }}
+            </div>
+            <div class="col-md-2">
+                {{ search_form.max_duration.label_tag }}
+                {{ search_form.max_duration }}
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+                <a href="{% url 'course_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="course-code">{{ course.course_code }}</span>
+                        <span class="course-status status-{{ course.status }}">
+                            {{ course.get_status_display }}
+                        </span>
+                    </div>
+                    <h5 class="card-title mb-1">{{ course.name }}</h5>
+                    {% if course.instructor_name %}
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-user me-1"></i>{{ course.instructor_name }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <div class="course-details mb-3">
+                    {% if course.description %}
+                    <p class="text-muted small mb-2">{{ course.description|truncatewords:15 }}</p>
+                    {% endif %}
+                    
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <small class="text-muted d-block">Duration</small>
+                            <strong>{{ course.duration }} {{ course.get_duration_unit_display }}</strong>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block">Type</small>
+                            <strong>{{ course.get_course_type_display }}</strong>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block">Max Students</small>
+                            <strong>{{ course.max_students }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enrollment Progress -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">Enrollment Progress</small>
+                        <small class="text-muted">{{ course.enrollment_count }}/{{ course.max_students }}</small>
+                    </div>
+                    <div class="enrollment-progress">
+                        <div class="enrollment-bar" style="width: {% widthratio course.enrollment_count course.max_students 100 %}%"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2">
+                    <a href="{% url 'course_detail' course.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-eye me-1"></i>View
+                    </a>
+                    <a href="{% url 'course_edit' course.pk %}" class="btn btn-outline-warning btn-sm flex-fill">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    {% if course.status == 'active' %}
+                    <a href="{% url 'enrollment_create' %}?course={{ course.pk }}" class="btn btn-outline-success btn-sm flex-fill">
+                        <i class="fas fa-user-plus me-1"></i>Enroll
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Additional Info -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="row">
+                        {% if course.start_date %}
+                        <div class="col-6">
+                            <small class="text-muted d-block">Start Date</small>
+                            <small><strong>{{ course.start_date|date:"M d, Y" }}</strong></small>
+                        </div>
+                        {% endif %}
+                        {% if course.end_date %}
+                        <div class="col-6">
+                            <small class="text-muted d-block">End Date</small>
+                            <small><strong>{{ course.end_date|date:"M d, Y" }}</strong></small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No courses found</h4>
+                <p class="text-muted">Try adjusting your search criteria or add a new course.</p>
+                <a href="{% url 'course_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Course
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Course pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.course_type %}&course_type={{ request.GET.course_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.course_type %}&course_type={{ request.GET.course_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.course_type %}&course_type={{ request.GET.course_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search_query %}&search_query={{ request.GET.search_query }}{% endif %}{% if request.GET.course_type %}&course_type={{ request.GET.course_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading animation on form submit
+    document.querySelector('form').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %} 

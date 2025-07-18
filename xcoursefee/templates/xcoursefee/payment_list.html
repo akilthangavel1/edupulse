@@ -1,0 +1,232 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Payment Management - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-credit-card"></i> Payment Management</h2>
+                <div>
+                    <a href="{% url 'payment_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Record Payment
+                    </a>
+                    <a href="{% url 'coursefee_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-dashboard"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Payments</h5>
+                                    <h3>{{ stats.total_payments }}</h3>
+                                </div>
+                                <i class="fas fa-credit-card fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Completed</h5>
+                                    <h3>{{ stats.completed_payments }}</h3>
+                                </div>
+                                <i class="fas fa-check-circle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Pending</h5>
+                                    <h3>{{ stats.pending_payments }}</h3>
+                                </div>
+                                <i class="fas fa-clock fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Amount</h5>
+                                    <h3>{{ stats.total_amount }} KWD</h3>
+                                </div>
+                                <i class="fas fa-coins fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Filter Payments</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ filter_form.student.label_tag }}
+                            {{ filter_form.student }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.course.label_tag }}
+                            {{ filter_form.course }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.payment_method.label_tag }}
+                            {{ filter_form.payment_method }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.status.label_tag }}
+                            {{ filter_form.status }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Action</label>
+                            <button type="submit" class="btn btn-primary d-block">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {% if filter_form.date_from or filter_form.date_to %}
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            {{ filter_form.date_from.label_tag }}
+                            {{ filter_form.date_from }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_to.label_tag }}
+                            {{ filter_form.date_to }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Payments List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Payments ({{ payments|length }} of {{ stats.total_payments }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Course</th>
+                                        <th>Amount</th>
+                                        <th>Payment Date</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                        <th>Receipt #</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td>{{ payment.enrollment.student.student_name }}</td>
+                                        <td>{{ payment.enrollment.course.name }}</td>
+                                        <td class="fw-bold {% if payment.status == 'completed' %}text-success{% else %}text-warning{% endif %}">
+                                            {{ payment.amount }} KWD
+                                        </td>
+                                        <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                        <td>{{ payment.get_payment_method_display }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% elif payment.status == 'failed' %}danger{% else %}secondary{% endif %}">
+                                                {{ payment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if payment.receipt_number %}
+                                                <code>{{ payment.receipt_number }}</code>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'payment_detail' payment.pk %}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if payment.status == 'pending' %}
+                                                <a href="{% url 'mark_payment_completed' payment.pk %}" class="btn btn-success btn-sm" onclick="return confirm('Mark this payment as completed?')">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                            <nav aria-label="Payment pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No payments found</h5>
+                            <p class="text-muted">Start by recording your first payment.</p>
+                            <a href="{% url 'payment_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Record Payment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %} 

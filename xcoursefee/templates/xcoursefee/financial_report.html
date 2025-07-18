@@ -1,0 +1,287 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Financial Reports - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-pie"></i> Financial Reports</h2>
+                <a href="{% url 'coursefee_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Report Generation Form -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-file-export"></i> Generate Financial Report</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="mb-4">
+                                    <label for="report_type" class="form-label">Report Period *</label>
+                                    <select name="report_type" id="report_type" class="form-control" required>
+                                        <option value="">Select report period...</option>
+                                        <option value="daily">Daily Report (Today)</option>
+                                        <option value="weekly">Weekly Report (This Week)</option>
+                                        <option value="monthly">Monthly Report (This Month)</option>
+                                        <option value="yearly">Yearly Report (This Year)</option>
+                                    </select>
+                                    <div class="form-text">Choose the time period for your financial report.</div>
+                                </div>
+
+                                <!-- Date Range Preview -->
+                                <div id="date_preview" class="alert alert-info" style="display: none;">
+                                    <h6><i class="fas fa-calendar"></i> Report Date Range</h6>
+                                    <div id="date_range_text"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle"></i> Report will be downloaded as CSV file
+                                        </small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="generate_btn" disabled>
+                                        <i class="fas fa-download"></i> Generate & Download Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Information -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-info-circle"></i> Report Contents</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="small">Your financial report will include:</p>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success"></i> Payment dates and amounts</li>
+                                <li><i class="fas fa-check text-success"></i> Student information</li>
+                                <li><i class="fas fa-check text-success"></i> Course details</li>
+                                <li><i class="fas fa-check text-success"></i> Payment methods used</li>
+                                <li><i class="fas fa-check text-success"></i> Payment status</li>
+                                <li><i class="fas fa-check text-success"></i> Reference numbers</li>
+                                <li><i class="fas fa-check text-success"></i> Receipt numbers</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-file-csv"></i> File Format</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <p><strong>Format:</strong> CSV (Comma-Separated Values)</p>
+                                <p><strong>Encoding:</strong> UTF-8</p>
+                                <p><strong>Compatible with:</strong></p>
+                                <ul>
+                                    <li>Microsoft Excel</li>
+                                    <li>Google Sheets</li>
+                                    <li>LibreOffice Calc</li>
+                                    <li>Any spreadsheet software</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-clock"></i> Report Periods</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <p><strong>Daily:</strong> All payments made today</p>
+                                <p><strong>Weekly:</strong> Payments from start of current week</p>
+                                <p><strong>Monthly:</strong> Payments from start of current month</p>
+                                <p><strong>Yearly:</strong> Payments from start of current year</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Overview -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-bar"></i> Quick Financial Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="bg-primary text-white p-3 rounded mb-3">
+                                        <h4 id="today_payments">-</h4>
+                                        <small>Today's Payments</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-success text-white p-3 rounded mb-3">
+                                        <h4 id="week_payments">-</h4>
+                                        <small>This Week</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-info text-white p-3 rounded mb-3">
+                                        <h4 id="month_payments">-</h4>
+                                        <small>This Month</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-warning text-white p-3 rounded mb-3">
+                                        <h4 id="year_payments">-</h4>
+                                        <small>This Year</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reports Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-history"></i> Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_type" value="daily">
+                                        <button type="submit" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-calendar-day"></i><br>
+                                            <small>Today's Report</small>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-3">
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_type" value="weekly">
+                                        <button type="submit" class="btn btn-outline-success w-100">
+                                            <i class="fas fa-calendar-week"></i><br>
+                                            <small>This Week</small>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-3">
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_type" value="monthly">
+                                        <button type="submit" class="btn btn-outline-info w-100">
+                                            <i class="fas fa-calendar-alt"></i><br>
+                                            <small>This Month</small>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-3">
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_type" value="yearly">
+                                        <button type="submit" class="btn btn-outline-warning w-100">
+                                            <i class="fas fa-calendar"></i><br>
+                                            <small>This Year</small>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reportTypeSelect = document.getElementById('report_type');
+    const datePreview = document.getElementById('date_preview');
+    const dateRangeText = document.getElementById('date_range_text');
+    const generateBtn = document.getElementById('generate_btn');
+
+    // Date calculation functions
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+
+    function getStartOfWeek(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day;
+        return new Date(d.setDate(diff));
+    }
+
+    reportTypeSelect.addEventListener('change', function() {
+        const reportType = this.value;
+        
+        if (reportType) {
+            const today = new Date();
+            let startDate, endDate, description;
+
+            switch(reportType) {
+                case 'daily':
+                    startDate = endDate = today;
+                    description = `Daily report for ${formatDate(today)}`;
+                    break;
+                    
+                case 'weekly':
+                    startDate = getStartOfWeek(today);
+                    endDate = today;
+                    description = `Weekly report from ${formatDate(startDate)} to ${formatDate(endDate)}`;
+                    break;
+                    
+                case 'monthly':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = today;
+                    description = `Monthly report from ${formatDate(startDate)} to ${formatDate(endDate)}`;
+                    break;
+                    
+                case 'yearly':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = today;
+                    description = `Yearly report from ${formatDate(startDate)} to ${formatDate(endDate)}`;
+                    break;
+            }
+
+            dateRangeText.innerHTML = description;
+            datePreview.style.display = 'block';
+            generateBtn.disabled = false;
+        } else {
+            datePreview.style.display = 'none';
+            generateBtn.disabled = true;
+        }
+    });
+
+    // Simulate loading financial overview data
+    // In a real implementation, you would fetch this via AJAX
+    setTimeout(function() {
+        document.getElementById('today_payments').textContent = '0 KWD';
+        document.getElementById('week_payments').textContent = '0 KWD';
+        document.getElementById('month_payments').textContent = '0 KWD';
+        document.getElementById('year_payments').textContent = '0 KWD';
+    }, 500);
+});
+</script>
+{% endblock %} 

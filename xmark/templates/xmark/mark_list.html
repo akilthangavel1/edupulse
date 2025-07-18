@@ -1,0 +1,278 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Marks List{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Marks</li>
+{% endblock %}
+
+{% block page_title %}Student Marks{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group">
+        <a href="{% url 'mark_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Add Mark
+        </a>
+        <a href="{% url 'bulk_mark_entry' %}" class="btn btn-success">
+            <i class="bi bi-plus-square"></i> Bulk Entry
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Search and Filter Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-search me-1"></i>
+            Search & Filter Marks
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    {{ form.student }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.subject }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.assessment_type }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.status }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.grade }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date From</label>
+                    {{ form.date_from }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date To</label>
+                    {{ form.date_to }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                        <a href="{% url 'mark_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+                <i class="bi bi-journal-text me-1"></i>
+                Mark Entries
+                {% if page_obj.paginator.count %}
+                    <span class="badge bg-primary">{{ page_obj.paginator.count }}</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="card-body">
+            {% if marks %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Assessment Type</th>
+                                <th>Marks</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                                <th>Assessment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mark in marks %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ mark.student.student_name }}</div>
+                                        <small class="text-muted">ID: {{ mark.student.id }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ mark.subject.code }}</div>
+                                        <small class="text-muted">{{ mark.subject.name }}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ mark.assessment_type.name }}</div>
+                                        <small class="text-muted">{{ mark.assessment_type.get_category_display }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ mark.marks_obtained }}/{{ mark.total_marks }}</div>
+                                    </td>
+                                    <td>
+                                        {% if mark.percentage %}
+                                            <div class="fw-bold">{{ mark.percentage|floatformat:1 }}%</div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar 
+                                                    {% if mark.percentage >= 90 %}bg-success
+                                                    {% elif mark.percentage >= 80 %}bg-info
+                                                    {% elif mark.percentage >= 70 %}bg-warning
+                                                    {% elif mark.percentage >= 60 %}bg-orange
+                                                    {% else %}bg-danger{% endif %}"
+                                                    role="progressbar" 
+                                                    style="width: {{ mark.percentage }}%"></div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if mark.grade %}
+                                            <span class="badge 
+                                                {% if mark.grade == 'A+' or mark.grade == 'A' %}bg-success
+                                                {% elif mark.grade == 'B+' or mark.grade == 'B' %}bg-info
+                                                {% elif mark.grade == 'C+' or mark.grade == 'C' %}bg-warning
+                                                {% elif mark.grade == 'D+' or mark.grade == 'D' %}bg-orange
+                                                {% else %}bg-danger{% endif %} grade-badge">
+                                                {{ mark.grade }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ mark.get_status_color }} status-badge">
+                                            {{ mark.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div>{{ mark.assessment_date|date:"M d, Y" }}</div>
+                                        <small class="text-muted">{{ mark.created_at|date:"M d, Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'mark_detail' mark.pk %}" 
+                                               class="btn btn-outline-info" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'mark_edit' mark.pk %}" 
+                                               class="btn btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            {% if mark.status == 'draft' %}
+                                                <button type="button" 
+                                                        class="btn btn-outline-success mark-status-btn" 
+                                                        data-mark-id="{{ mark.pk }}"
+                                                        data-status="published"
+                                                        title="Publish">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-journal-x fs-1 text-muted"></i>
+                    <h4 class="text-muted mt-3">No marks found</h4>
+                    <p class="text-muted">No marks match your current filters.</p>
+                    <a href="{% url 'mark_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Add First Mark
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle status update buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusButtons = document.querySelectorAll('.mark-status-btn');
+        
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const markId = this.dataset.markId;
+                const newStatus = this.dataset.status;
+                
+                // Show loading state
+                const originalContent = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                this.disabled = true;
+                
+                // Make AJAX request
+                fetch(`/marks/ajax/marks/${markId}/status/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `status=${newStatus}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to show updated status
+                        location.reload();
+                    } else {
+                        alert('Error updating status: ' + data.message);
+                        this.innerHTML = originalContent;
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating status');
+                    this.innerHTML = originalContent;
+                    this.disabled = false;
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

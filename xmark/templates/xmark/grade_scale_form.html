@@ -1,0 +1,154 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'grade_scale_list' %}">Grade Scales</a></li>
+    <li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'grade_scale_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-graph-up me-1"></i>
+                    {{ title }}
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Grade -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.grade.id_for_label }}" class="form-label">
+                                    Grade <span class="text-danger">*</span>
+                                </label>
+                                {{ form.grade }}
+                                {% if form.grade.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.grade.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">e.g., A+, A, B+, B, C, D, F</div>
+                            </div>
+                            
+                            <!-- Grade Points -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.grade_points.id_for_label }}" class="form-label">
+                                    Grade Points <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.grade_points }}
+                                    <span class="input-group-text">pts</span>
+                                </div>
+                                {% if form.grade_points.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.grade_points.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">e.g., 4.00, 3.70, 3.30</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Min Percentage -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.min_percentage.id_for_label }}" class="form-label">
+                                    Minimum Percentage <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.min_percentage }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.min_percentage.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.min_percentage.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Max Percentage -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.max_percentage.id_for_label }}" class="form-label">
+                                    Maximum Percentage <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.max_percentage }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.max_percentage.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.max_percentage.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">e.g., Excellent, Good, Average, etc.</div>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Grade Scale
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Inactive grade scales won't be used for grade calculation</div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'grade_scale_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> 
+                                {% if grade_scale %}Update Grade Scale{% else %}Save Grade Scale{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

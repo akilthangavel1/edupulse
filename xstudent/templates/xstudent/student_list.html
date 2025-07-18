@@ -1,0 +1,248 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Students List - EduPulse{% endblock %}
+
+{% block header %}Students List{% endblock %}
+
+{% block header_actions %}
+    <div class="d-flex flex-column gap-2">
+        <!-- First Row -->
+        <div class="btn-group">
+            <a href="{% url 'student_create' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Register New Student
+            </a>
+        </div>
+        <!-- Second Row -->
+        <div class="btn-group">
+            <a href="#" class="btn btn-outline-info">
+                <i class="fas fa-exchange-alt me-2"></i>Student Transferred List
+            </a>
+            <a href="{% url 'old_student_create' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-user-plus me-2"></i>Add Old Students
+            </a>
+            <a href="{% url 'student_drafts' %}" class="btn btn-outline-warning">
+                <i class="fas fa-file-alt me-2"></i>View Drafts ({{ draft_students }})
+            </a>
+            <a href="{% url 'student_export' %}" class="btn btn-outline-success">
+                <i class="fas fa-download me-2"></i>Export
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-users fa-2x me-3"></i>
+                        <div>
+                            <h4 class="mb-0">{{ total_students }}</h4>
+                            <small>Total Students</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-check fa-2x me-3"></i>
+                        <div>
+                            <h4 class="mb-0">{{ active_students }}</h4>
+                            <small>Active Students</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'student_drafts' %}" class="text-decoration-none">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-alt fa-2x me-3"></i>
+                            <div>
+                                <h4 class="mb-0">{{ draft_students }}</h4>
+                                <small>Draft Students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card search-box mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    {{ search_form.search_query.label_tag }}
+                    {{ search_form.search_query }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.status.label_tag }}
+                    {{ search_form.status }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.gender.label_tag }}
+                    {{ search_form.gender }}
+                </div>
+                <div class="col-md-3">
+                    {{ search_form.grade.label_tag }}
+                    {{ search_form.grade }}
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Grade</th>
+                                <th>Program</th>
+                                <th>Gender</th>
+                                <th>Father Phone</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                                <tr>
+                                    <td>
+                                        {% if student.student_profile_picture %}
+                                            <img src="{{ student.student_profile_picture.url }}" alt="{{ student.student_name }}" 
+                                                 class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
+                                                {{ student.student_name.0|upper }}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ student.student_name|default:"[Draft]" }}</strong>
+                                            {% if student.status == 'draft' %}
+                                                <span class="badge bg-warning text-dark ms-1">Draft</span>
+                                            {% endif %}
+                                            <br>
+                                            <small class="text-muted">{{ student.school_name|default:"No school specified" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:{{ student.email_id }}" class="text-decoration-none">
+                                            {{ student.email_id }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ student.grade }}</span>
+                                    </td>
+                                    <td>{{ student.program|truncatechars:20 }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ student.get_gender_display }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="tel:{{ student.father_mobile_no }}" class="text-decoration-none">
+                                            {{ student.father_mobile_no }}
+                                        </a>
+                                    </td>
+                                    <td>{{ student.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'student_edit' student.pk %}" class="btn btn-outline-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'student_delete' student.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Students pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No students found</h4>
+                    <p class="text-muted">No students match your search criteria.</p>
+                    <a href="{% url 'student_create' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Register First Student
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+{% csrf_token %}
+<script>
+    // Auto refresh every 30 seconds
+    setTimeout(function(){
+        window.location.reload(1);
+    }, 30000);
+</script>
+{% endblock %} 

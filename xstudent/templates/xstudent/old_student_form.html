@@ -1,0 +1,182 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}
+    {% if old_student %}
+        Edit Old Student - EduPulse
+    {% else %}
+        Add Old Student - EduPulse
+    {% endif %}
+{% endblock %}
+
+{% block header %}
+    {% if old_student %}
+        Edit Old Student
+    {% else %}
+        Add Old Student
+    {% endif %}
+{% endblock %}
+
+{% block header_actions %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'old_student_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Old Students
+        </a>
+        {% if old_student %}
+            <a href="{% url 'old_student_detail' old_student.pk %}" class="btn btn-outline-info">
+                <i class="fas fa-eye me-2"></i>View Details
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Student Name -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.student_name.id_for_label }}" class="form-label">{{ form.student_name.label }}</label>
+                        {{ form.student_name }}
+                        {% if form.student_name.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.student_name.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.student_name.help_text %}
+                            <div class="form-text">{{ form.student_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Student Code -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.student_code.id_for_label }}" class="form-label">{{ form.student_code.label }}</label>
+                        {{ form.student_code }}
+                        {% if form.student_code.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.student_code.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.student_code.help_text %}
+                            <div class="form-text">{{ form.student_code.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.email.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.email.help_text %}
+                            <div class="form-text">{{ form.email.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mobile Number -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.mobile_number.id_for_label }}" class="form-label">{{ form.mobile_number.label }}</label>
+                        {{ form.mobile_number }}
+                        {% if form.mobile_number.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.mobile_number.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.mobile_number.help_text %}
+                            <div class="form-text">{{ form.mobile_number.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Date of Birth -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">{{ form.date_of_birth.label }}</label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.date_of_birth.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.date_of_birth.help_text %}
+                            <div class="form-text">{{ form.date_of_birth.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 10th Level Completed Date -->
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.tenth_level_completed_date.id_for_label }}" class="form-label">{{ form.tenth_level_completed_date.label }}</label>
+                        {{ form.tenth_level_completed_date }}
+                        {% if form.tenth_level_completed_date.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.tenth_level_completed_date.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.tenth_level_completed_date.help_text %}
+                            <div class="form-text">{{ form.tenth_level_completed_date.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'old_student_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if old_student %}
+                            <i class="fas fa-save me-2"></i>Update Old Student
+                        {% else %}
+                            <i class="fas fa-save me-2"></i>Add Old Student
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation feedback
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(e) {
+            // Add loading state to submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            // Re-enable button after 5 seconds (safety fallback)
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                if (submitBtn.textContent.includes('Update')) {
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Old Student';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Add Old Student';
+                }
+            }, 5000);
+        });
+    });
+</script>
+{% endblock %} 

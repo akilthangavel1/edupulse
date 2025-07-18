@@ -1,0 +1,172 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Record Payment - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-credit-card"></i> Record Payment</h2>
+                <a href="{% url 'payment_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Payments
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-edit"></i> Payment Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.enrollment.label_tag }}
+                                            {{ form.enrollment }}
+                                            {% if form.enrollment.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.enrollment.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.invoice.label_tag }}
+                                            {{ form.invoice }}
+                                            {% if form.invoice.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.invoice.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            {{ form.amount.label_tag }}
+                                            {{ form.amount }}
+                                            {% if form.amount.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.amount.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            {{ form.payment_date.label_tag }}
+                                            {{ form.payment_date }}
+                                            {% if form.payment_date.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.payment_date.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            {{ form.payment_method.label_tag }}
+                                            {{ form.payment_method }}
+                                            {% if form.payment_method.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.payment_method.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.reference_number.label_tag }}
+                                            {{ form.reference_number }}
+                                            {% if form.reference_number.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.reference_number.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.status.label_tag }}
+                                            {{ form.status }}
+                                            {% if form.status.errors %}
+                                                <div class="text-danger small">
+                                                    {{ form.status.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form.notes.label_tag }}
+                                    {{ form.notes }}
+                                    {% if form.notes.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.notes.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'payment_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Record Payment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-info-circle"></i> Payment Guidelines</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success"></i> Select the student enrollment</li>
+                                <li><i class="fas fa-check text-success"></i> Enter the exact amount received</li>
+                                <li><i class="fas fa-check text-success"></i> Choose the correct payment method</li>
+                                <li><i class="fas fa-check text-success"></i> Add reference number for tracking</li>
+                                <li><i class="fas fa-check text-success"></i> Set status to "completed" if payment is confirmed</li>
+                                <li><i class="fas fa-check text-success"></i> Add notes for any special instructions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-money-bill"></i> Payment Methods</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <p><strong>Cash:</strong> For direct cash payments</p>
+                                <p><strong>Bank Transfer:</strong> For bank wire transfers</p>
+                                <p><strong>Credit Card:</strong> For card payments</p>
+                                <p><strong>Cheque:</strong> For cheque payments</p>
+                                <p><strong>Online:</strong> For online payment gateways</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

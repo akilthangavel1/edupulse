@@ -1,0 +1,135 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Mark Details{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'mark_list' %}">Marks</a></li>
+    <li class="breadcrumb-item active">Mark Details</li>
+{% endblock %}
+
+{% block page_title %}Mark Details{% endblock %}
+
+{% block page_actions %}
+    <div class="btn-group">
+        <a href="{% url 'mark_edit' mark.pk %}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'mark_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-journal-text me-1"></i>
+                    Mark Information
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Student</h6>
+                            <p class="fw-bold">{{ mark.student.student_name }}</p>
+                            
+                            <h6 class="text-muted">Subject</h6>
+                            <p>
+                                <span class="badge bg-info">{{ mark.subject.code }}</span>
+                                {{ mark.subject.name }}
+                            </p>
+                            
+                            <h6 class="text-muted">Assessment Type</h6>
+                            <p>{{ mark.assessment_type.name }} ({{ mark.assessment_type.get_category_display }})</p>
+                            
+                            <h6 class="text-muted">Assessment Date</h6>
+                            <p>{{ mark.assessment_date|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Marks</h6>
+                            <p class="fs-5 fw-bold">{{ mark.marks_obtained }}/{{ mark.total_marks }}</p>
+                            
+                            <h6 class="text-muted">Percentage</h6>
+                            <p class="fs-4 fw-bold text-primary">{{ mark.percentage|floatformat:1 }}%</p>
+                            
+                            <h6 class="text-muted">Grade</h6>
+                            {% if mark.grade %}
+                                <span class="badge bg-success fs-6 grade-badge">{{ mark.grade }}</span>
+                            {% else %}
+                                <span class="text-muted">Not graded</span>
+                            {% endif %}
+                            
+                            <h6 class="text-muted mt-3">Status</h6>
+                            <span class="badge bg-{{ mark.get_status_color }} status-badge">
+                                {{ mark.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if mark.remarks %}
+                        <hr>
+                        <h6 class="text-muted">Remarks</h6>
+                        <p class="mb-0">{{ mark.remarks }}</p>
+                    {% endif %}
+                    
+                    {% if mark.submission_date %}
+                        <hr>
+                        <h6 class="text-muted">Submission Date</h6>
+                        <p class="mb-0">{{ mark.submission_date|date:"F d, Y H:i" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Quick Stats -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="bi bi-graph-up me-1"></i>
+                    Quick Stats
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="h4 text-primary">{{ mark.percentage|floatformat:1 }}%</div>
+                            <small class="text-muted">Percentage</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-success">{{ mark.grade|default:"-" }}</div>
+                            <small class="text-muted">Grade</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Marks -->
+            {% if related_marks %}
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-list me-1"></i>
+                        Other Marks (Same Subject)
+                    </div>
+                    <div class="card-body">
+                        {% for related_mark in related_marks %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <small>{{ related_mark.assessment_type.name }}</small>
+                                    <br>
+                                    <span class="text-muted small">{{ related_mark.assessment_date|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">{{ related_mark.percentage|floatformat:1 }}%</div>
+                                    {% if related_mark.grade %}
+                                        <span class="badge bg-info">{{ related_mark.grade }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if not forloop.last %}<hr class="my-2">{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %} 

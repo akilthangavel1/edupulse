@@ -1,0 +1,232 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Invoice Details - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-file-invoice"></i> Invoice Details</h2>
+                <a href="{% url 'invoice_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Invoices
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> Invoice Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Invoice Number:</strong></div>
+                                <div class="col-sm-9">
+                                    <code class="fs-5">{{ invoice.invoice_number }}</code>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Student:</strong></div>
+                                <div class="col-sm-9">{{ invoice.enrollment.student.student_name }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Course:</strong></div>
+                                <div class="col-sm-9">{{ invoice.enrollment.course.name }} ({{ invoice.enrollment.course.course_code }})</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Issue Date:</strong></div>
+                                <div class="col-sm-9">{{ invoice.issue_date|date:"F d, Y" }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Due Date:</strong></div>
+                                <div class="col-sm-9">
+                                    {{ invoice.due_date|date:"F d, Y" }}
+                                    {% if invoice.status == 'sent' and invoice.due_date < today %}
+                                        <span class="badge bg-danger ms-2">Overdue</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Status:</strong></div>
+                                <div class="col-sm-9">
+                                    <span class="badge bg-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'sent' %}primary{% elif invoice.status == 'overdue' %}danger{% elif invoice.status == 'draft' %}secondary{% else %}warning{% endif %} fs-6">
+                                        {{ invoice.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Subtotal:</strong></div>
+                                <div class="col-sm-9">{{ invoice.subtotal }} KWD</div>
+                            </div>
+                            
+                            {% if invoice.discount_amount > 0 %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Discount:</strong></div>
+                                <div class="col-sm-9 text-success">-{{ invoice.discount_amount }} KWD</div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Total Amount:</strong></div>
+                                <div class="col-sm-9">
+                                    <span class="fs-4 fw-bold {% if invoice.status == 'paid' %}text-success{% else %}text-warning{% endif %}">
+                                        {{ invoice.total_amount }} KWD
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {% if invoice.applied_discount %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Applied Discount:</strong></div>
+                                <div class="col-sm-9">{{ invoice.applied_discount.name }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if invoice.notes %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Notes:</strong></div>
+                                <div class="col-sm-9">{{ invoice.notes }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Created:</strong></div>
+                                <div class="col-sm-9">{{ invoice.created_at|date:"F d, Y g:i A" }}</div>
+                            </div>
+                            
+                            {% if invoice.updated_at != invoice.created_at %}
+                            <div class="row mb-3">
+                                <div class="col-sm-3"><strong>Last Updated:</strong></div>
+                                <div class="col-sm-9">{{ invoice.updated_at|date:"F d, Y g:i A" }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Related Payments -->
+                    {% if payments %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-credit-card"></i> Related Payments ({{ total_paid }} KWD paid)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Method</th>
+                                            <th>Status</th>
+                                            <th>Reference</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in payments %}
+                                        <tr>
+                                            <td class="fw-bold text-success">{{ payment.amount }} KWD</td>
+                                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                            <td>{{ payment.get_payment_method_display }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                                    {{ payment.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if payment.reference_number %}
+                                                    <code>{{ payment.reference_number }}</code>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-cog"></i> Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            {% if invoice.status == 'draft' %}
+                                <button class="btn btn-success w-100 mb-2" onclick="return confirm('Send this invoice to the student?')">
+                                    <i class="fas fa-paper-plane"></i> Send Invoice
+                                </button>
+                            {% endif %}
+                            
+                            {% if invoice.status != 'paid' %}
+                                <button class="btn btn-warning w-100 mb-2" onclick="return confirm('Mark this invoice as paid?')">
+                                    <i class="fas fa-check"></i> Mark as Paid
+                                </button>
+                            {% endif %}
+                            
+                            <button class="btn btn-info w-100 mb-2">
+                                <i class="fas fa-print"></i> Print Invoice
+                            </button>
+                            
+                            <button class="btn btn-secondary w-100 mb-2">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
+                            
+                            <a href="{% url 'enrollment_detail' invoice.enrollment.pk %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-user"></i> View Enrollment
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-user"></i> Student Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Name:</strong> {{ invoice.enrollment.student.student_name }}</p>
+                            <p><strong>Email:</strong> {{ invoice.enrollment.student.email_id }}</p>
+                            <p><strong>Phone:</strong> {{ invoice.enrollment.student.phone_number }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6><i class="fas fa-calculator"></i> Payment Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span>Total Amount:</span>
+                                <strong>{{ invoice.total_amount }} KWD</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Amount Paid:</span>
+                                <strong class="text-success">{{ total_paid }} KWD</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span><strong>Outstanding:</strong></span>
+                                <strong class="{% if invoice.total_amount == total_paid %}text-success{% else %}text-danger{% endif %}">
+                                    {{ invoice.total_amount|sub:total_paid }} KWD
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

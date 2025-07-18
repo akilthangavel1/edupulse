@@ -1,0 +1,333 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Attendance Dashboard - EduPulse{% endblock %}
+
+{% block header %}Attendance Dashboard{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex">
+    <a href="{% url 'attendance_create' %}" class="btn btn-primary me-2">
+        <i class="fas fa-plus"></i> Record Attendance
+    </a>
+    <a href="{% url 'attendance_bulk_create' %}" class="btn btn-success me-2">
+        <i class="fas fa-users"></i> Bulk Attendance
+    </a>
+    <a href="{% url 'attendance_report' %}" class="btn btn-info">
+        <i class="fas fa-chart-line"></i> Generate Report
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Today's Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card stats-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <h4>{{ today_stats.total }}</h4>
+                <p class="mb-0">Total Students</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <h4>{{ today_stats.present }}</h4>
+                <p class="mb-0">Present Today</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-danger text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x mb-2"></i>
+                <h4>{{ today_stats.absent }}</h4>
+                <p class="mb-0">Absent Today</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4>{{ today_stats.late }}</h4>
+                <p class="mb-0">Late Today</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Rate for Today -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-day"></i> Today's Attendance Rate
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if today_stats.total > 0 %}
+                    {% widthratio today_stats.present today_stats.total 100 as attendance_rate %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Attendance Rate</span>
+                        <strong>{{ attendance_rate }}%</strong>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-success" style="width: {{ attendance_rate }}%"></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col">
+                            <small class="text-muted">Present: {{ today_stats.present }}</small>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted">Absent: {{ today_stats.absent }}</small>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted">Late: {{ today_stats.late }}</small>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted">Not Marked: {{ today_stats.not_marked }}</small>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No students enrolled</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie"></i> Today's Status Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success rounded me-2" style="width: 12px; height: 12px;"></div>
+                            <small>Present ({{ today_stats.present }})</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger rounded me-2" style="width: 12px; height: 12px;"></div>
+                            <small>Absent ({{ today_stats.absent }})</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning rounded me-2" style="width: 12px; height: 12px;"></div>
+                            <small>Late ({{ today_stats.late }})</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info rounded me-2" style="width: 12px; height: 12px;"></div>
+                            <small>Excused ({{ today_stats.excused }})</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly and Monthly Stats -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-week"></i> This Week's Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-3">
+                        <h6 class="text-success">{{ week_stats.present }}</h6>
+                        <small class="text-muted">Present</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-danger">{{ week_stats.absent }}</h6>
+                        <small class="text-muted">Absent</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning">{{ week_stats.late }}</h6>
+                        <small class="text-muted">Late</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-info">{{ week_stats.excused }}</h6>
+                        <small class="text-muted">Excused</small>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-0 text-center">
+                    <strong>Total Records: {{ week_stats.total_records }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-alt"></i> This Month's Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-3">
+                        <h6 class="text-success">{{ month_stats.present }}</h6>
+                        <small class="text-muted">Present</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-danger">{{ month_stats.absent }}</h6>
+                        <small class="text-muted">Absent</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning">{{ month_stats.late }}</h6>
+                        <small class="text-muted">Late</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-info">{{ month_stats.excused }}</h6>
+                        <small class="text-muted">Excused</small>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-0 text-center">
+                    <strong>Total Records: {{ month_stats.total_records }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendance and Students Info -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> Recent Attendance Records
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_attendance %}
+                    <div class="list-group list-group-flush">
+                        {% for attendance in recent_attendance %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ attendance.student.student_name }}</strong><br>
+                                <small class="text-muted">{{ attendance.date }} - {{ attendance.time_in|default:"No time" }}</small>
+                            </div>
+                            <span class="badge bg-{% if attendance.status == 'present' %}success{% elif attendance.status == 'absent' %}danger{% elif attendance.status == 'late' %}warning{% else %}info{% endif %}">
+                                {{ attendance.get_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'attendance_list' %}" class="btn btn-outline-primary btn-sm">View All</a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No attendance records yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-star"></i> Perfect Attendance This Month
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if perfect_attendance %}
+                    <div class="list-group list-group-flush">
+                        {% for student in perfect_attendance %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ student.student_name }}</strong><br>
+                                <small class="text-muted">{{ student.grade }} - {{ student.program }}</small>
+                            </div>
+                            <span class="badge bg-success">100%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No perfect attendance records this month</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if concerning_attendance %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0 text-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Concerning Attendance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for item in concerning_attendance %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ item.student.student_name }}</strong><br>
+                            <small class="text-muted">{{ item.present_days }}/{{ item.total_days }} days</small>
+                        </div>
+                        <span class="badge bg-warning">{{ item.rate }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_create' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus"></i> Record Individual Attendance
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_bulk_create' %}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-users"></i> Bulk Attendance Entry
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_list' %}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-list"></i> View All Records
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'attendance_report' %}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-download"></i> Export Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

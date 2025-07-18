@@ -1,0 +1,119 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Delete Old Student - EduPulse{% endblock %}
+
+{% block header %}Delete Old Student{% endblock %}
+
+{% block header_actions %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'old_student_detail' old_student.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Details
+        </a>
+        <a href="{% url 'old_student_list' %}" class="btn btn-outline-info">
+            <i class="fas fa-list me-2"></i>Back to List
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. All data related to this old student will be permanently deleted.
+                    </div>
+                    
+                    <h6>You are about to delete the following old student:</h6>
+                    
+                    <div class="card bg-light mt-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Student Name:</strong>
+                                    <div class="text-muted">{{ old_student.student_name }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Student Code:</strong>
+                                    <div>
+                                        <span class="badge bg-primary">{{ old_student.student_code }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Email:</strong>
+                                    <div class="text-muted">{{ old_student.email }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Mobile:</strong>
+                                    <div class="text-muted">{{ old_student.mobile_number }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Date of Birth:</strong>
+                                    <div class="text-muted">{{ old_student.date_of_birth|date:"F d, Y" }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>10th Completed:</strong>
+                                    <div class="text-muted">{{ old_student.tenth_level_completed_date|date:"F d, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'old_student_detail' old_student.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger" id="deleteBtn">
+                                <i class="fas fa-trash me-2"></i>Yes, Delete Old Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteBtn = document.getElementById('deleteBtn');
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(e) {
+            // Add loading state to delete button
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Deleting...';
+            
+            // Re-enable button after 5 seconds (safety fallback)
+            setTimeout(() => {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<i class="fas fa-trash me-2"></i>Yes, Delete Old Student';
+            }, 5000);
+        });
+        
+        // Additional confirmation
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm('Are you absolutely sure you want to delete {{ old_student.student_name }}? This action cannot be undone.')) {
+                form.submit();
+            }
+        });
+    });
+</script>
+{% endblock %} 

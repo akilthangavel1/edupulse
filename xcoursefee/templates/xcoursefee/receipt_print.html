@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Receipt - {{ enrollment.student.student_name }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; }
+        .receipt { max-width: 800px; margin: 20px auto; padding: 30px; border: 1px solid #ddd; }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #2c3e50; }
+        .header h1 { color: #2c3e50; font-size: 28px; margin-bottom: 10px; }
+        .receipt-info { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .info-section h3 { color: #2c3e50; font-size: 18px; margin-bottom: 15px; }
+        .info-item { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .section-title { color: #2c3e50; font-size: 20px; margin-bottom: 15px; padding: 10px; background: #ecf0f1; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; font-weight: bold; }
+        .amount { text-align: right; font-weight: bold; }
+        .summary { margin-top: 30px; background: #f8f9fa; padding: 20px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .summary-item.total { border-top: 2px solid #2c3e50; margin-top: 15px; padding-top: 15px; font-weight: bold; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h1>EduPulse - Fee Receipt</h1>
+            <p>Receipt Date: {{ receipt_date|date:"F d, Y" }}</p>
+        </div>
+        
+        <div class="receipt-info">
+            <div class="info-section">
+                <h3>Student Information</h3>
+                <div class="info-item">
+                    <span><strong>Name:</strong></span>
+                    <span>{{ enrollment.student.student_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span><strong>Student ID:</strong></span>
+                    <span>{{ enrollment.student.student_id }}</span>
+                </div>
+                <div class="info-item">
+                    <span><strong>Course:</strong></span>
+                    <span>{{ enrollment.course.name }}</span>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>Enrollment Details</h3>
+                <div class="info-item">
+                    <span><strong>Course Code:</strong></span>
+                    <span>{{ enrollment.course.course_code }}</span>
+                </div>
+                <div class="info-item">
+                    <span><strong>Enrollment Date:</strong></span>
+                    <span>{{ enrollment.enrollment_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span><strong>Status:</strong></span>
+                    <span>{{ enrollment.get_status_display }}</span>
+                </div>
+            </div>
+        </div>
+        
+        {% if payments %}
+        <div class="section-title">Course Fee Payments</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Reference #</th>
+                    <th class="amount">Amount (KWD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                    <td>{{ payment.get_payment_method_display }}</td>
+                    <td>{{ payment.reference_number|default:"-" }}</td>
+                    <td class="amount">{{ payment.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        {% if kit_fees %}
+        <div class="section-title">Kit Fee Payments</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kit Name</th>
+                    <th>Payment Date</th>
+                    <th>Delivery</th>
+                    <th class="amount">Amount (KWD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kit_fee in kit_fees %}
+                <tr>
+                    <td>{{ kit_fee.course_kit.kit.name }}</td>
+                    <td>{{ kit_fee.payment_date|date:"M d, Y"|default:"-" }}</td>
+                    <td>{{ kit_fee.get_delivery_status_display }}</td>
+                    <td class="amount">{{ kit_fee.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        <div class="summary">
+            <h3>Payment Summary</h3>
+            <div class="summary-item">
+                <span>Total Course Fees:</span>
+                <span>{{ total_course_fees }} KWD</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Kit Fees:</span>
+                <span>{{ total_kit_fees }} KWD</span>
+            </div>
+            <div class="summary-item total">
+                <span>Grand Total:</span>
+                <span>{{ grand_total }} KWD</span>
+            </div>
+            <div class="summary-item">
+                <span>Total Paid:</span>
+                <span>{{ total_paid_all }} KWD</span>
+            </div>
+            <div class="summary-item">
+                <span>Outstanding Balance:</span>
+                <span>{{ outstanding_balance }} KWD</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; text-align: center; color: #7f8c8d;">
+            <p>Thank you for choosing EduPulse!</p>
+            <p>This is an official receipt for your records.</p>
+        </div>
+    </div>
+    
+    <div class="no-print" style="text-align: center; margin: 20px;">
+        <button onclick="window.print()" style="background: #3498db; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            🖨️ Print Receipt
+        </button>
+        <button onclick="window.close()" style="background: #95a5a6; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+            Close
+        </button>
+    </div>
+</body>
+</html> 

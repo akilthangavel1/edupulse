@@ -1,0 +1,145 @@
+{% extends 'xmark/base.html' %}
+
+{% block title %}Student Reports{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Student Reports</li>
+{% endblock %}
+
+{% block page_title %}Student Reports{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-search me-1"></i>
+                    Generate Report
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <div class="mb-3">
+                            <label for="{{ form.student.id_for_label }}" class="form-label">
+                                Student <span class="text-danger">*</span>
+                            </label>
+                            {{ form.student }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.semester.id_for_label }}" class="form-label">
+                                Semester
+                            </label>
+                            {{ form.semester }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.academic_year.id_for_label }}" class="form-label">
+                                Academic Year
+                            </label>
+                            {{ form.academic_year }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.include_drafts }}
+                                <label class="form-check-label" for="{{ form.include_drafts.id_for_label }}">
+                                    Include Draft Marks
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-file-earmark-text"></i> Generate Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        {% if report_data %}
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-file-earmark-text me-1"></i>
+                    Student Performance Report
+                </div>
+                <div class="card-body">
+                    <!-- Student Info -->
+                    <div class="mb-4">
+                        <h5>{{ report_data.student.student_name }}</h5>
+                        <p class="text-muted mb-0">
+                            Student ID: {{ report_data.student.id }}
+                            {% if report_data.semester %} | Semester: {{ report_data.semester }}{% endif %}
+                            {% if report_data.academic_year %} | Academic Year: {{ report_data.academic_year }}{% endif %}
+                        </p>
+                        <small class="text-muted">Generated: {{ report_data.generated_at|date:"F d, Y H:i" }}</small>
+                    </div>
+                    
+                    <!-- Subject Reports -->
+                    {% if report_data.subjects_data %}
+                        {% for subject_id, data in report_data.subjects_data.items %}
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <span class="badge bg-info">{{ data.subject.code }}</span>
+                                            {{ data.subject.name }}
+                                        </span>
+                                        <span class="fw-bold">{{ data.percentage }}%</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Assessment</th>
+                                                    <th>Date</th>
+                                                    <th>Marks</th>
+                                                    <th>Percentage</th>
+                                                    <th>Grade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for mark in data.marks %}
+                                                    <tr>
+                                                        <td>{{ mark.assessment_type.name }}</td>
+                                                        <td>{{ mark.assessment_date|date:"M d, Y" }}</td>
+                                                        <td>{{ mark.marks_obtained }}/{{ mark.total_marks }}</td>
+                                                        <td>{{ mark.percentage|floatformat:1 }}%</td>
+                                                        <td>
+                                                            {% if mark.grade %}
+                                                                <span class="badge bg-success">{{ mark.grade }}</span>
+                                                            {% else %}
+                                                                <span class="text-muted">-</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="table-primary">
+                                                    <th>Total</th>
+                                                    <th></th>
+                                                    <th>{{ data.total_obtained }}/{{ data.total_possible }}</th>
+                                                    <th>{{ data.percentage }}%</th>
+                                                    <th></th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-journal-x fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No marks found for this student.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %} 

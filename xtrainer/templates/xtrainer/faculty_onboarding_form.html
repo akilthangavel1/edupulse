@@ -1,0 +1,451 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Faculty Onboarding Application{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-user-plus"></i> Faculty Onboarding Application
+                    </h1>
+                    <p class="text-muted">Submit your application to join our faculty team</p>
+                </div>
+                <div>
+                    <a href="{% url 'faculty_onboarding_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Application Form -->
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Personal Information Card -->
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user"></i> Personal Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+                                            {{ form.phone }}
+                                            {% if form.phone.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-graduation-cap"></i> Professional Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.qualification.id_for_label }}" class="form-label">{{ form.qualification.label }}</label>
+                                            {{ form.qualification }}
+                                            {% if form.qualification.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.qualification.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="{{ form.specialization.id_for_label }}" class="form-label">{{ form.specialization.label }}</label>
+                                            {{ form.specialization }}
+                                            {% if form.specialization.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.specialization.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.experience_years.id_for_label }}" class="form-label">{{ form.experience_years.label }}</label>
+                                            {{ form.experience_years }}
+                                            {% if form.experience_years.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.experience_years.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.preferred_employment_type.id_for_label }}" class="form-label">{{ form.preferred_employment_type.label }}</label>
+                                            {{ form.preferred_employment_type }}
+                                            {% if form.preferred_employment_type.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.preferred_employment_type.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.expected_hourly_rate.id_for_label }}" class="form-label">{{ form.expected_hourly_rate.label }}</label>
+                                            {{ form.expected_hourly_rate }}
+                                            {% if form.expected_hourly_rate.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.expected_hourly_rate.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.preferred_courses.id_for_label }}" class="form-label">{{ form.preferred_courses.label }}</label>
+                                    {{ form.preferred_courses }}
+                                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple courses you would like to teach</small>
+                                    {% if form.preferred_courses.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.preferred_courses.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.availability_notes.id_for_label }}" class="form-label">{{ form.availability_notes.label }}</label>
+                                    {{ form.availability_notes }}
+                                    {% if form.availability_notes.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.availability_notes.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Upload Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-file-upload"></i> Document Upload
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.cv_file.id_for_label }}" class="form-label">{{ form.cv_file.label }}</label>
+                                            {{ form.cv_file }}
+                                            <small class="form-text text-muted">Upload your CV/Resume (PDF, DOC, DOCX)</small>
+                                            {% if form.cv_file.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.cv_file.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.certificates_file.id_for_label }}" class="form-label">{{ form.certificates_file.label }}</label>
+                                            {{ form.certificates_file }}
+                                            <small class="form-text text-muted">Upload educational certificates</small>
+                                            {% if form.certificates_file.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.certificates_file.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="{{ form.other_documents.id_for_label }}" class="form-label">{{ form.other_documents.label }}</label>
+                                            {{ form.other_documents }}
+                                            <small class="form-text text-muted">Any other supporting documents</small>
+                                            {% if form.other_documents.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.other_documents.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Document Requirements:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>CV/Resume is highly recommended</li>
+                                        <li>Educational certificates help verify qualifications</li>
+                                        <li>Accepted formats: PDF, DOC, DOCX, JPG, PNG</li>
+                                        <li>Maximum file size: 10MB per file</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Application Status & Actions Card -->
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-info-circle"></i> Application Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                                    <h5>Join Our Faculty Team</h5>
+                                    <p class="text-muted">We're looking for qualified educators to join our institution</p>
+                                </div>
+                                
+                                <div class="application-process">
+                                    <h6 class="font-weight-bold">Application Process:</h6>
+                                    <div class="step-item">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        <span>Complete application form</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <i class="fas fa-clock text-warning"></i>
+                                        <span>Review by admin team</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <i class="fas fa-user-check text-info"></i>
+                                        <span>Interview process</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <i class="fas fa-handshake text-primary"></i>
+                                        <span>Onboarding & training</span>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="requirements">
+                                    <h6 class="font-weight-bold">Requirements:</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check text-success"></i> Relevant qualification</li>
+                                        <li><i class="fas fa-check text-success"></i> Teaching experience</li>
+                                        <li><i class="fas fa-check text-success"></i> Subject expertise</li>
+                                        <li><i class="fas fa-check text-success"></i> Professional references</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions Card -->
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Application
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane"></i> Submit Application
+                                    </button>
+                                    
+                                    <a href="{% url 'faculty_onboarding_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="text-muted small">
+                                    <p><i class="fas fa-shield-alt"></i> <strong>Privacy:</strong> Your information is secure and confidential</p>
+                                    <p><i class="fas fa-clock"></i> <strong>Processing:</strong> Applications are typically reviewed within 3-5 business days</p>
+                                    <p><i class="fas fa-envelope"></i> <strong>Updates:</strong> You'll receive email notifications about your application status</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #e74a3b;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.step-item i {
+    margin-right: 8px;
+    width: 16px;
+}
+
+.requirements li {
+    margin-bottom: 5px;
+}
+
+.requirements li i {
+    margin-right: 8px;
+    width: 16px;
+}
+
+.application-process {
+    margin-bottom: 20px;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+</style>
+
+<script>
+// File upload validation
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    
+    fileInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const fileSize = file.size / 1024 / 1024; // Convert to MB
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
+                
+                if (fileSize > 10) {
+                    alert('File size must be less than 10MB');
+                    this.value = '';
+                    return;
+                }
+                
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please upload only PDF, DOC, DOCX, JPG, or PNG files');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    });
+    
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+        let hasErrors = false;
+        
+        requiredFields.forEach(function(field) {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                hasErrors = true;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+        }
+    });
+});
+</script>
+{% endblock %} 
