@@ -1,0 +1,362 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Kit Fee Management - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-money-bill"></i> Kit Fee Management</h2>
+                <div>
+                    <a href="{% url 'kit_fee_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Kit Fee
+                    </a>
+                    <a href="{% url 'kit_list' %}" class="btn btn-info">
+                        <i class="fas fa-box"></i> Kits
+                    </a>
+                    <a href="{% url 'coursefee_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-dashboard"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Kit Fees</h5>
+                                    <h3>{{ stats.total_kit_fees }}</h3>
+                                </div>
+                                <i class="fas fa-money-bill fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Paid Fees</h5>
+                                    <h3>{{ stats.paid_fees }}</h3>
+                                </div>
+                                <i class="fas fa-check-circle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Pending Fees</h5>
+                                    <h3>{{ stats.pending_fees }}</h3>
+                                </div>
+                                <i class="fas fa-clock fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Revenue</h5>
+                                    <h3>{{ stats.total_revenue }} KWD</h3>
+                                </div>
+                                <i class="fas fa-chart-line fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Deliveries Alert -->
+            {% if stats.pending_deliveries > 0 %}
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Attention:</strong> You have {{ stats.pending_deliveries }} pending deliveries for paid kit fees.
+                <a href="?payment_status=paid&delivery_status=pending" class="alert-link">View them here</a>.
+            </div>
+            {% endif %}
+
+            <!-- Filter Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Filter Kit Fees</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ filter_form.student.label_tag }}
+                            {{ filter_form.student }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.course.label_tag }}
+                            {{ filter_form.course }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.kit.label_tag }}
+                            {{ filter_form.kit }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.payment_status.label_tag }}
+                            {{ filter_form.payment_status }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ filter_form.delivery_status.label_tag }}
+                            {{ filter_form.delivery_status }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_from.label_tag }}
+                            {{ filter_form.date_from }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_to.label_tag }}
+                            {{ filter_form.date_to }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Action</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Filter
+                                </button>
+                                <a href="{% url 'kit_fee_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kit Fees List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Kit Fees ({{ kit_fees|length }} of {{ stats.total_kit_fees }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if kit_fees %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Course</th>
+                                        <th>Kit</th>
+                                        <th>Amount</th>
+                                        <th>Payment Status</th>
+                                        <th>Delivery Status</th>
+                                        <th>Created Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for kit_fee in kit_fees %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'student_detail' kit_fee.enrollment.student.pk %}" class="text-decoration-none">
+                                                {{ kit_fee.enrollment.student.student_name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'course_detail' kit_fee.enrollment.course.pk %}" class="text-decoration-none">
+                                                {{ kit_fee.enrollment.course.name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'kit_detail' kit_fee.course_kit.kit.pk %}" class="text-decoration-none">
+                                                {{ kit_fee.course_kit.kit.name }}
+                                            </a>
+                                        </td>
+                                        <td class="fw-bold {% if kit_fee.payment_status == 'paid' %}text-success{% else %}text-warning{% endif %}">
+                                            {{ kit_fee.amount }} KWD
+                                        </td>
+                                        <td>
+                                            {% if kit_fee.payment_status == 'paid' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Paid
+                                                </span>
+                                            {% elif kit_fee.payment_status == 'pending' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            {% elif kit_fee.payment_status == 'cancelled' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times"></i> Cancelled
+                                                </span>
+                                            {% elif kit_fee.payment_status == 'refunded' %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-undo"></i> Refunded
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if kit_fee.delivery_status == 'delivered' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-truck"></i> Delivered
+                                                </span>
+                                            {% elif kit_fee.delivery_status == 'collected' %}
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-hand-holding"></i> Collected
+                                                </span>
+                                            {% elif kit_fee.delivery_status == 'pending' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            {% elif kit_fee.delivery_status == 'returned' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-undo"></i> Returned
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ kit_fee.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'kit_fee_detail' kit_fee.pk %}" class="btn btn-sm btn-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'kit_fee_edit' kit_fee.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if kit_fee.payment_status == 'pending' %}
+                                                <button class="btn btn-sm btn-success" onclick="markKitFeePaid({{ kit_fee.pk }})" title="Mark as Paid">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                {% endif %}
+                                                {% if kit_fee.can_deliver %}
+                                                <button class="btn btn-sm btn-primary" onclick="markKitDelivered({{ kit_fee.pk }})" title="Mark as Delivered">
+                                                    <i class="fas fa-truck"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                        <nav aria-label="Kit fees pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-money-bill fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Kit Fees Found</h4>
+                            <p class="text-muted">
+                                {% if filter_form.is_bound %}
+                                    No kit fees match your current filters. Try adjusting your search criteria.
+                                {% else %}
+                                    There are no kit fees recorded yet.
+                                {% endif %}
+                            </p>
+                            {% if not filter_form.is_bound %}
+                            <a href="{% url 'kit_fee_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add First Kit Fee
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    window.markKitFeePaid = function(kitFeeId) {
+        if (confirm('Mark this kit fee as paid?')) {
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrftoken);
+            
+            fetch('/coursefee/ajax/kit-fee/' + kitFeeId + '/mark-paid/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                alert('An error occurred. Please try again.');
+            });
+        }
+    };
+    
+    window.markKitDelivered = function(kitFeeId) {
+        if (confirm('Mark this kit as delivered?')) {
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrftoken);
+            
+            fetch('/coursefee/ajax/kit-fee/' + kitFeeId + '/mark-delivered/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(function(error) {
+                alert('An error occurred. Please try again.');
+            });
+        }
+    };
+});
+</script>
+{% endblock %} 
