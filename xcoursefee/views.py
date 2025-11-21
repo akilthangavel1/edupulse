@@ -34,6 +34,7 @@ from .forms import (
 from xstudent.models import NewStudent
 
 
+@login_required
 def test_template(request):
     """Simple test view"""
     return render(request, 'xcoursefee/test.html')

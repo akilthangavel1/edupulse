@@ -15,6 +15,7 @@ from datetime import date, datetime, timedelta
 import csv
 
 
+@login_required
 def student_list(request):
     """List view for students with search and pagination"""
     queryset = NewStudent.objects.all()
@@ -66,6 +67,7 @@ def student_list(request):
     return render(request, 'xstudent/student_list.html', context)
 
 
+@login_required
 def student_draft_list(request):
     """List view for draft students with pagination"""
     queryset = NewStudent.objects.filter(status='draft').order_by('-created_at')
@@ -84,6 +86,7 @@ def student_draft_list(request):
     return render(request, 'xstudent/student_draft_list.html', context)
 
 
+@login_required
 def student_create(request):
     """Create view for new students"""
     if request.method == 'POST':
@@ -124,12 +127,14 @@ def student_create(request):
     return render(request, 'xstudent/student_form.html', {'form': form})
 
 
+@login_required
 def student_detail(request, pk):
     """Detail view for a student"""
     student = get_object_or_404(NewStudent, pk=pk)
     return render(request, 'xstudent/student_detail.html', {'student': student})
 
 
+@login_required
 def student_update(request, pk):
     """Update view for a student"""
     student = get_object_or_404(NewStudent, pk=pk)
@@ -174,6 +179,7 @@ def student_update(request, pk):
     return render(request, 'xstudent/student_form.html', {'form': form, 'student': student})
 
 
+@login_required
 def student_delete(request, pk):
     """Delete view for a student"""
     student = get_object_or_404(NewStudent, pk=pk)
@@ -187,6 +193,7 @@ def student_delete(request, pk):
     return render(request, 'xstudent/student_confirm_delete.html', {'student': student})
 
 
+@login_required
 def student_dashboard(request):
     """Dashboard with student statistics"""
     # Get grade statistics
@@ -216,6 +223,7 @@ def student_dashboard(request):
     return render(request, 'xstudent/dashboard.html', context)
 
 
+@login_required
 def student_export(request):
     """Export students data to CSV"""
     import csv
@@ -248,6 +256,7 @@ def student_export(request):
 
 
 # Old Student Views
+@login_required
 def old_student_list(request):
     """List view for old students with search and pagination"""
     queryset = OldStudent.objects.all()
@@ -284,6 +293,7 @@ def old_student_list(request):
     return render(request, 'xstudent/old_student_list.html', context)
 
 
+@login_required
 def old_student_create(request):
     """Create view for old students"""
     if request.method == 'POST':
@@ -311,12 +321,14 @@ def old_student_create(request):
     return render(request, 'xstudent/old_student_form.html', {'form': form})
 
 
+@login_required
 def old_student_detail(request, pk):
     """Detail view for an old student"""
     old_student = get_object_or_404(OldStudent, pk=pk)
     return render(request, 'xstudent/old_student_detail.html', {'old_student': old_student})
 
 
+@login_required
 def old_student_update(request, pk):
     """Update view for an old student"""
     old_student = get_object_or_404(OldStudent, pk=pk)
@@ -346,6 +358,7 @@ def old_student_update(request, pk):
     return render(request, 'xstudent/old_student_form.html', {'form': form, 'old_student': old_student})
 
 
+@login_required
 def old_student_delete(request, pk):
     """Delete view for an old student"""
     old_student = get_object_or_404(OldStudent, pk=pk)
