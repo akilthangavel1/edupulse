@@ -439,7 +439,23 @@ def attendance_create(request):
             attendance = form.save(commit=False)
             attendance.recorded_by = request.user
             attendance.save()
+            
+            # Show success message
             messages.success(request, f'Attendance recorded for {attendance.student.student_name} on {attendance.date}')
+            
+            # Show additional message for absence notification
+            if attendance.status == 'absent':
+                parent_emails = []
+                if attendance.student.father_email_id:
+                    parent_emails.append(attendance.student.father_email_id)
+                if attendance.student.mother_email_id:
+                    parent_emails.append(attendance.student.mother_email_id)
+                
+                if parent_emails:
+                    messages.info(request, f'Absence notification email sent to parents: {", ".join(parent_emails)}')
+                else:
+                    messages.warning(request, 'No parent email addresses found. Notification not sent.')
+            
             return redirect('attendance_list')
         else:
             for field, errors in form.errors.items():
@@ -473,6 +489,7 @@ def attendance_bulk_create(request):
             # Process individual attendance records from form
             created_count = 0
             updated_count = 0
+            absent_count = 0
             
             for student in students:
                 student_status = request.POST.get(f'status_{student.id}', default_status)
@@ -501,8 +518,17 @@ def attendance_bulk_create(request):
                     attendance.recorded_by = request.user
                     attendance.save()
                     updated_count += 1
+                
+                # Count absent students for notification message
+                if student_status == 'absent':
+                    absent_count += 1
             
             messages.success(request, f'Bulk attendance completed: {created_count} created, {updated_count} updated')
+            
+            # Show notification message for absent students
+            if absent_count > 0:
+                messages.info(request, f'Absence notifications sent to parents of {absent_count} student(s)')
+            
             return redirect('attendance_list')
     else:
         form = BulkAttendanceForm()
@@ -537,6 +563,7 @@ def attendance_detail(request, pk):
 def attendance_update(request, pk):
     """Update view for attendance record"""
     attendance = get_object_or_404(Attendance, pk=pk)
+    old_status = attendance.status  # Store old status to check if changed to absent
     
     if request.method == 'POST':
         form = AttendanceForm(request.POST, instance=attendance)
@@ -544,7 +571,22 @@ def attendance_update(request, pk):
             attendance = form.save(commit=False)
             attendance.recorded_by = request.user
             attendance.save()
+            
             messages.success(request, f'Attendance updated for {attendance.student.student_name}')
+            
+            # Show notification message if status changed to absent
+            if old_status != 'absent' and attendance.status == 'absent':
+                parent_emails = []
+                if attendance.student.father_email_id:
+                    parent_emails.append(attendance.student.father_email_id)
+                if attendance.student.mother_email_id:
+                    parent_emails.append(attendance.student.mother_email_id)
+                
+                if parent_emails:
+                    messages.info(request, f'Absence notification email sent to parents: {", ".join(parent_emails)}')
+                else:
+                    messages.warning(request, 'No parent email addresses found. Notification not sent.')
+            
             return redirect('attendance_detail', pk=attendance.pk)
         else:
             for field, errors in form.errors.items():

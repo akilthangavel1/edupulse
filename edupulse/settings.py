@@ -142,15 +142,26 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = reverse_lazy('student_dashboard')
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Email settings for password reset (Development)
+# Email settings
+# =============================================================================
+# DEVELOPMENT: Emails will be printed to console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'EduPulse <noreply@edupulse.com>'
-EMAIL_HOST_USER = 'noreply@edupulse.com'
 
-# For production, use these settings instead:
+# PRODUCTION: Uncomment and configure these settings for real email delivery
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # or your email provider
+# EMAIL_HOST = 'smtp.gmail.com'  # or your email provider (e.g., smtp.office365.com, smtp.sendgrid.net)
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # For Gmail, use App Password (not your regular password)
+
+# Common email settings (used in both development and production)
+DEFAULT_FROM_EMAIL = 'EduPulse <noreply@edupulse.com>'
+EMAIL_HOST_USER = 'noreply@edupulse.com'
+
+# =============================================================================
+# ATTENDANCE NOTIFICATION SETTINGS
+# =============================================================================
+# Absence notifications are automatically sent to parents when students are marked absent
+# Notifications are sent to both father_email_id and mother_email_id from student records
+# To disable automatic notifications, comment out the signals import in xstudent/apps.py
