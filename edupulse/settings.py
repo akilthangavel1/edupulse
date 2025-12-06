@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u^qc-$berh_50j944@qj+ckw(=ctl()#s@5bo32**2ilvj*x%^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -127,6 +127,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# For serving static files in production with WhiteNoise
+# Install: pip install whitenoise
+# Then add 'whitenoise.middleware.WhiteNoiseMiddleware' to MIDDLEWARE (after SecurityMiddleware)
+# Uncomment the line below after installing WhiteNoise:
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
