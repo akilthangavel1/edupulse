@@ -1,0 +1,27 @@
+{% extends 'base_placeholder.html' %}
+
+{% block content %}
+<h1>Transport Fees</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Student</th>
+            <th>Amount</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fee in fees %}
+        <tr>
+            <td>{{ fee.id }}</td>
+            <td>{{ fee.student }}</td>
+            <td>{{ fee.amount }}</td>
+            <td>{{ fee.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

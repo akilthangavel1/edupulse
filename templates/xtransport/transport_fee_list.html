@@ -1,0 +1,30 @@
+{% extends 'base_placeholder.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Transport Fee Entries</h2>
+    <a href="{% url 'xtransport:transport_fee_create' %}" class="btn btn-primary mb-3">Add New Fee</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Amount (KWD)</th>
+                <th>Payment Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fee in fees %}
+            <tr>
+                <td>{{ fee.student.student_name }}</td>
+                <td>{{ fee.amount }}</td>
+                <td>{{ fee.payment_date }}</td>
+                <td>
+                    <a href="{% url 'xtransport:transport_fee_edit' fee.id %}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
