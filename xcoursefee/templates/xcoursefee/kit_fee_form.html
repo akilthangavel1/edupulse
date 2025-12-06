@@ -1,0 +1,207 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{% if kit_fee %}Edit{% else %}Add{% endif %} Kit Fee - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-box"></i> {% if kit_fee %}Edit Kit Fee{% else %}Add Kit Fee{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Enrollment & Kit Selection -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-graduate"></i> Enrollment & Kit Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.enrollment.label }}</label>
+                                        {{ form.enrollment }}
+                                        {% if form.enrollment.errors %}
+                                        <div class="text-danger small">{{ form.enrollment.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Select the student enrollment</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.course_kit.label }}</label>
+                                        {{ form.course_kit }}
+                                        {% if form.course_kit.errors %}
+                                        <div class="text-danger small">{{ form.course_kit.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Select the course kit</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Details -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-money-bill-wave"></i> Payment Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.amount.label }}</label>
+                                        {{ form.amount }}
+                                        {% if form.amount.errors %}
+                                        <div class="text-danger small">{{ form.amount.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Kit fee amount in KWD</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.payment_status.label }}</label>
+                                        {{ form.payment_status }}
+                                        {% if form.payment_status.errors %}
+                                        <div class="text-danger small">{{ form.payment_status.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.payment_date.label }}</label>
+                                        {{ form.payment_date }}
+                                        {% if form.payment_date.errors %}
+                                        <div class="text-danger small">{{ form.payment_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.payment_method.label }}</label>
+                                        {{ form.payment_method }}
+                                        {% if form.payment_method.errors %}
+                                        <div class="text-danger small">{{ form.payment_method.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.payment_reference.label }}</label>
+                                        {{ form.payment_reference }}
+                                        {% if form.payment_reference.errors %}
+                                        <div class="text-danger small">{{ form.payment_reference.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Transaction reference number</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Details -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-truck"></i> Delivery Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.delivery_status.label }}</label>
+                                        {{ form.delivery_status }}
+                                        {% if form.delivery_status.errors %}
+                                        <div class="text-danger small">{{ form.delivery_status.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.delivery_date.label }}</label>
+                                        {{ form.delivery_date }}
+                                        {% if form.delivery_date.errors %}
+                                        <div class="text-danger small">{{ form.delivery_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.collected_by.label }}</label>
+                                        {{ form.collected_by }}
+                                        {% if form.collected_by.errors %}
+                                        <div class="text-danger small">{{ form.collected_by.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Person who collected the kit</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-sticky-note"></i> Additional Notes
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.notes.label }}</label>
+                                    {{ form.notes }}
+                                    {% if form.notes.errors %}
+                                    <div class="text-danger small">{{ form.notes.errors }}</div>
+                                    {% endif %}
+                                    <div class="form-text">Any additional notes or remarks</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-danger">*</span> <small class="text-muted">Required fields</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'kit_fee_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> {% if kit_fee %}Update{% else %}Save{% endif %} Kit Fee
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Info -->
+            <div class="alert alert-info mt-3">
+                <h6><i class="fas fa-info-circle"></i> Quick Guide:</h6>
+                <ul class="mb-0 small">
+                    <li><strong>Enrollment:</strong> Select the student enrollment for which you're adding the kit fee</li>
+                    <li><strong>Course Kit:</strong> Select the kit from the list (only shows kits for the enrollment's course)</li>
+                    <li><strong>Amount:</strong> Enter the kit fee amount (must match the kit's price)</li>
+                    <li><strong>Payment Status:</strong> Set to "Pending" if not paid yet, "Paid" if payment received</li>
+                    <li><strong>Delivery Status:</strong> Track whether kit has been delivered to student</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-populate amount based on selected course kit (optional enhancement)
+    const courseKitSelect = document.querySelector('select[name="course_kit"]');
+    const amountInput = document.querySelector('input[name="amount"]');
+    
+    if (courseKitSelect && amountInput) {
+        courseKitSelect.addEventListener('change', function() {
+            // This could be enhanced with AJAX to fetch kit price
+            console.log('Course kit changed:', this.value);
+        });
+    }
+});
+</script>
+{% endblock %}
+
