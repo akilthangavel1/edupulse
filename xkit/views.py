@@ -28,3 +28,8 @@ def api_kit_can_assemble(request, kit_id):
 @login_required
 def api_low_stock_materials(request):
     return JsonResponse({'success': True, 'data': []})
+
+
+
+def dummy():
+    pass
