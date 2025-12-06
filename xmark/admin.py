@@ -2,6 +2,9 @@ from django.contrib import admin
 from .models import Subject, AssessmentType, GradeScale, StudentMark, StudentGradeSummary
 
 
+
+#########
+
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['code', 'name', 'course', 'credit_hours', 'instructor', 'is_active', 'created_at']
