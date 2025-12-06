@@ -140,6 +140,13 @@
 - `/admin/xbroadcast/leadscore/` - Lead scores
 - `/admin/xbroadcast/communicationlog/` - Communication logs
 
+### Certificate Management (Admin Interface)
+- `/admin/xcertificate/certificatetemplate/` - Certificate templates
+- `/admin/xcertificate/certificatesignatory/` - Certificate signatories
+- `/admin/xcertificate/studentcertificate/` - Student certificates (Manual Issuance)
+- `/admin/xcertificate/certificateverification/` - Verification logs
+- `/admin/xcertificate/certificatebatch/` - Batch processing
+
 ### Admin System (Admin Interface)
 - `/admin/xadmin/systemuser/` - System users
 - `/admin/xadmin/role/` - Roles

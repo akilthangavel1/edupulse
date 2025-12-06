@@ -139,6 +139,30 @@ Django admin automatically generates URLs based on **model names** (lowercase), 
 
 ---
 
+## Certificate Management (xcertificate)
+
+| Model | Admin URL |
+|-------|-----------|
+| CertificateTemplate | `/admin/xcertificate/certificatetemplate/` |
+| CertificateSignatory | `/admin/xcertificate/certificatesignatory/` |
+| StudentCertificate | `/admin/xcertificate/studentcertificate/` |
+| CertificateVerification | `/admin/xcertificate/certificateverification/` |
+| CertificateBatch | `/admin/xcertificate/certificatebatch/` |
+
+**Features:**
+- ✅ Manual certificate issuance workflow
+- ✅ Public verification system with QR codes
+- ✅ Certificate status tracking (Draft, Issued, Printed, Collected, Revoked)
+- ✅ Verification logging and security tracking
+- ✅ Batch processing for bulk issuance
+- ✅ Certificate templates with customization
+- ✅ Digital signatures support
+
+**Public Verification URL:**
+- `/verify-certificate/{verification_code}/` - Public certificate verification portal
+
+---
+
 ## System Admin (xadmin)
 
 ⚠️ **Status:** App exists but admin status unknown. Check `xadmin/admin.py` and `xadmin/models.py`

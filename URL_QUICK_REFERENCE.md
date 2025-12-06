@@ -91,6 +91,11 @@
 /broadcast/templates/     - Message templates
 ```
 
+### Certificate Management
+```
+/verify-certificate/{code}/  - Public certificate verification
+```
+
 ### Django Admin (Functional)
 ```
 /admin/                           - Admin dashboard
@@ -101,6 +106,7 @@
 /admin/xcoursefee/payment/        - Payments (admin)
 /admin/xmark/studentmark/         - Marks (admin)
 /admin/xtrainer/faculty/          - Faculty (admin)
+/admin/xcertificate/studentcertificate/ - Certificates (admin)
 ```
 
 ### System Admin (Not Functional - Use /admin/ instead)

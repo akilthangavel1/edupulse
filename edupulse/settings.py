@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'xtransport',
     'xkit',
     'xbroadcast',
+    'xcertificate',
     'xadmin',
 ]
 
