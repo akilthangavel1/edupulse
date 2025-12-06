@@ -1,0 +1,143 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}All Certificates - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-certificate"></i> All Certificates</h2>
+                    <p class="text-muted">All recorded certificate issuances</p>
+                </div>
+                <div>
+                    <a href="{% url 'certificate_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                    <a href="{% url 'certificate_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus-circle"></i> Record New
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-search"></i> Search & Filter</h5>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        {{ search_form.student_name }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ search_form.certificate_number }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ search_form.course }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Date From</label>
+                        {{ search_form.date_from }}
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Date To</label>
+                        {{ search_form.date_to }}
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="{% url 'certificate_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> Certificates ({{ certificates.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Certificate #</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Issue Date</th>
+                            <th>Issued By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cert in certificates %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'certificate_detail' cert.pk %}">
+                                    <strong>{{ cert.certificate_number }}</strong>
+                                </a>
+                            </td>
+                            <td>
+                                {{ cert.student.student_name }}
+                                <br><small class="text-muted">{{ cert.student.student_id }}</small>
+                            </td>
+                            <td>{{ cert.course.name }}</td>
+                            <td>{{ cert.issue_date|date:"d M Y" }}</td>
+                            <td>
+                                {% if cert.issued_by %}
+                                    {{ cert.issued_by.get_full_name|default:cert.issued_by.username }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'certificate_detail' cert.pk %}" 
+                                       class="btn btn-outline-primary" 
+                                       title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'certificate_edit' cert.pk %}" 
+                                       class="btn btn-outline-warning" 
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'certificate_delete' cert.pk %}" 
+                                       class="btn btn-outline-danger" 
+                                       title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-certificate fa-3x mb-3"></i>
+                                <p>No certificates found.</p>
+                                <a href="{% url 'certificate_create' %}" class="btn btn-success">
+                                    <i class="fas fa-plus-circle"></i> Record First Certificate
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

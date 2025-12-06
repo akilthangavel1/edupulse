@@ -13,6 +13,7 @@ urlpatterns = [
     path('transport/', include('xtransport.urls')),
     path('kits/', include('xkit.urls')),
     path('broadcast/', include('xbroadcast.urls')),
+    path('certificates/', include('xcertificate.urls')),
     path('system/', include('xadmin.urls')),
     path('', include('xstudent.urls')),
 ]

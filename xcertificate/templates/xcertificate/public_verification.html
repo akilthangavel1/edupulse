@@ -1,0 +1,302 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Verify Certificate - EduPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verification-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    .verification-box {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .result-box {
+        border-radius: 10px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    .result-valid {
+        background-color: #d4edda;
+        border: 2px solid #28a745;
+    }
+    .result-invalid {
+        background-color: #f8d7da;
+        border: 2px solid #dc3545;
+    }
+    .result-revoked {
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+    }
+    .certificate-detail {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="verification-hero">
+    <div class="container text-center">
+        <h1><i class="fas fa-shield-alt fa-3x mb-3"></i></h1>
+        <h2>Certificate Verification Portal</h2>
+        <p class="lead">Verify the authenticity of certificates issued by Brillianz Institute</p>
+    </div>
+</div>
+
+<!-- Verification Form -->
+<div class="container pb-5">
+    <div class="verification-box">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-search"></i> Verify Certificate</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Search By:</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="search_type" value="number" id="searchByNumber" checked>
+                            <label class="btn btn-outline-primary" for="searchByNumber">
+                                <i class="fas fa-hashtag"></i> Certificate Number
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="search_type" value="code" id="searchByCode">
+                            <label class="btn btn-outline-primary" for="searchByCode">
+                                <i class="fas fa-qrcode"></i> Verification Code
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Enter Certificate Number or Verification Code:</label>
+                        {{ form.search_value }}
+                        <div class="form-text">
+                            <strong>Certificate Number:</strong> e.g., CERT/2025/0001<br>
+                            <strong>Verification Code:</strong> 64-character verification code
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="fas fa-check-circle"></i> Verify Certificate
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Verification Result -->
+        {% if verification_result %}
+        <div class="result-box {% if verification_result == 'valid' %}result-valid{% elif verification_result == 'invalid' %}result-invalid{% else %}result-revoked{% endif %}">
+            {% if verification_result == 'valid' %}
+                <!-- VALID CERTIFICATE -->
+                <div class="text-center mb-3">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                    <h2 class="mt-3 text-success">✓ Valid Certificate</h2>
+                    <p class="text-muted">This certificate is authentic and valid</p>
+                </div>
+
+                {% if certificate %}
+                <div class="certificate-detail">
+                    <h5 class="border-bottom pb-2 mb-3"><i class="fas fa-certificate"></i> Certificate Details</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Certificate Number:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.certificate_number }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Student Name:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.student.student_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Course:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.course.name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Grade:</strong>
+                        </div>
+                        <div class="col-6">
+                            {% if certificate.grade %}
+                                <span class="badge bg-info">{{ certificate.get_grade_display }}</span>
+                                {% if certificate.percentage %}
+                                    ({{ certificate.percentage }}%)
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Issue Date:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.issue_date|date:"F d, Y" }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Completion Date:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.completion_date|date:"F d, Y" }}
+                        </div>
+                    </div>
+
+                    {% if certificate.duration_hours %}
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Course Duration:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.duration_hours }} hours
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if certificate.signatories.exists %}
+                    <div class="row mb-0">
+                        <div class="col-12">
+                            <strong>Authorized Signatories:</strong>
+                            <ul class="mt-2">
+                                {% for signatory in certificate.signatories.all %}
+                                <li>{{ signatory.title }} {{ signatory.name }}, {{ signatory.get_position_display }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-success mt-3 mb-0">
+                    <i class="fas fa-shield-alt"></i> 
+                    This certificate has been verified {{ certificate.verification_count }} time{{ certificate.verification_count|pluralize }}.
+                </div>
+                {% endif %}
+
+            {% elif verification_result == 'invalid' %}
+                <!-- INVALID CERTIFICATE -->
+                <div class="text-center">
+                    <i class="fas fa-times-circle fa-5x text-danger"></i>
+                    <h2 class="mt-3 text-danger">✗ Certificate Not Found</h2>
+                    <p class="text-muted mb-0">
+                        The certificate number or verification code you entered could not be found in our system.
+                    </p>
+                    <hr>
+                    <p class="small mb-0">
+                        <strong>Possible reasons:</strong><br>
+                        • Incorrect certificate number or verification code<br>
+                        • Certificate not yet issued<br>
+                        • Fraudulent certificate
+                    </p>
+                </div>
+
+            {% elif verification_result == 'revoked' %}
+                <!-- REVOKED CERTIFICATE -->
+                <div class="text-center">
+                    <i class="fas fa-ban fa-5x text-warning"></i>
+                    <h2 class="mt-3 text-warning">⚠ Certificate Revoked</h2>
+                    <p class="text-muted">This certificate has been revoked and is no longer valid.</p>
+                </div>
+
+                {% if certificate %}
+                <div class="certificate-detail">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Certificate Number:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.certificate_number }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Student Name:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.student.student_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Revoked On:</strong>
+                        </div>
+                        <div class="col-6">
+                            {{ certificate.revoked_date|date:"F d, Y" }}
+                        </div>
+                    </div>
+
+                    {% if certificate.revocation_reason %}
+                    <div class="row mb-0">
+                        <div class="col-12">
+                            <strong>Reason:</strong>
+                            <p class="mt-2 mb-0">{{ certificate.revocation_reason }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            {% elif verification_result == 'expired' %}
+                <!-- EXPIRED CERTIFICATE -->
+                <div class="text-center">
+                    <i class="fas fa-hourglass-end fa-5x text-warning"></i>
+                    <h2 class="mt-3 text-warning">⏰ Certificate Expired</h2>
+                    <p class="text-muted mb-0">This certificate has expired and is no longer valid.</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Information Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> About Certificate Verification</h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-2">
+                    All certificates issued by Brillianz Institute contain a unique certificate number and verification code. 
+                    You can verify any certificate using either:
+                </p>
+                <ul class="small mb-0">
+                    <li><strong>Certificate Number:</strong> Printed on the certificate (e.g., CERT/2025/0001)</li>
+                    <li><strong>Verification Code:</strong> QR code on the certificate or 64-character code</li>
+                </ul>
+                <hr>
+                <p class="small text-muted mb-0">
+                    <i class="fas fa-shield-alt"></i> All verification attempts are logged for security purposes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

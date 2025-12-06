@@ -1,0 +1,64 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Mark Certificate as Collected - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-hand-holding"></i> Mark as Collected
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Certificate Details</h5>
+                        <p class="mb-0"><strong>Certificate #:</strong> {{ certificate.certificate_number }}</p>
+                        <p class="mb-0"><strong>Student:</strong> {{ certificate.student.student_name }}</p>
+                        <p class="mb-0"><strong>Course:</strong> {{ certificate.course.name }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="collected_by" class="form-label">Collected By <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="collected_by" 
+                                   name="collected_by"
+                                   placeholder="e.g., Ahmed Mohammed or Mrs. Fatima (Mother)"
+                                   value="{{ certificate.student.student_name }}"
+                                   required>
+                            <div class="form-text">Name of the person who collected the certificate</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">Remarks (Optional)</label>
+                            <textarea class="form-control" 
+                                      id="remarks" 
+                                      name="remarks" 
+                                      rows="3"
+                                      placeholder="e.g., ID verified, Certificate handed over in person"></textarea>
+                            <div class="form-text">Any additional notes about the collection</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Confirm Collection
+                            </button>
+                            <a href="{% url 'pending_certificates' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

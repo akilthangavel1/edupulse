@@ -1,0 +1,163 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Verification Logs - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-shield-alt"></i> Certificate Verification Logs</h2>
+                    <p class="text-muted">Monitor all certificate verification attempts</p>
+                </div>
+                <div>
+                    <a href="{% url 'certificate_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-check-circle"></i> Valid Verifications
+                    </h5>
+                    <h2 class="mb-0">{{ valid_count }}</h2>
+                    <small class="text-muted">Successful verifications</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">
+                        <i class="fas fa-times-circle"></i> Invalid Attempts
+                    </h5>
+                    <h2 class="mb-0">{{ invalid_count }}</h2>
+                    <small class="text-muted">Failed verification attempts</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-history"></i> Total Attempts
+                    </h5>
+                    <h2 class="mb-0">{{ total_verifications }}</h2>
+                    <small class="text-muted">All verification requests</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Recent Verification Attempts (Last 100)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Certificate</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Result</th>
+                            <th>Method</th>
+                            <th>IP Address</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>
+                                <div>{{ log.verified_at|date:"d M Y" }}</div>
+                                <small class="text-muted">{{ log.verified_at|time:"H:i:s" }}</small>
+                            </td>
+                            <td>
+                                {% if log.certificate %}
+                                    <a href="{% url 'certificate_detail' log.certificate.pk %}">
+                                        {{ log.certificate.certificate_number }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Not found</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.certificate %}
+                                    {{ log.certificate.student.student_name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.certificate %}
+                                    {{ log.certificate.course.name|truncatewords:3 }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.verification_result == 'valid' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Valid
+                                    </span>
+                                {% elif log.verification_result == 'invalid' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times"></i> Invalid
+                                    </span>
+                                {% elif log.verification_result == 'revoked' %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-ban"></i> Revoked
+                                    </span>
+                                {% elif log.verification_result == 'expired' %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-clock"></i> Expired
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.verification_method == 'certificate_number' %}
+                                    <small><i class="fas fa-hashtag"></i> Number</small>
+                                {% else %}
+                                    <small><i class="fas fa-qrcode"></i> Code</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ log.ip_address }}</small>
+                            </td>
+                            <td>
+                                {% if log.organization_name %}
+                                    <small>{{ log.organization_name }}</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                                <p>No verification attempts yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

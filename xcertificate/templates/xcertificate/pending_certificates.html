@@ -1,0 +1,99 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Pending Collection - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-clock"></i> Pending Collection</h2>
+                    <p class="text-muted">Certificates ready but not yet collected by students</p>
+                </div>
+                <div>
+                    <a href="{% url 'certificate_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if certificates %}
+    <div class="alert alert-warning">
+        <i class="fas fa-info-circle"></i> 
+        <strong>{{ certificates.count }} certificate{{ certificates.count|pluralize }}</strong> waiting to be collected.
+        Mark them as collected when students pick them up.
+    </div>
+
+    <div class="row">
+        {% for cert in certificates %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-certificate"></i> {{ cert.certificate_number }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Student</label>
+                        <h5>{{ cert.student.student_name }}</h5>
+                        <small class="text-muted">{{ cert.student.student_id }}</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Course</label>
+                        <p class="mb-0">{{ cert.course.name }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Issue Date</label>
+                        <p class="mb-0">{{ cert.issue_date|date:"d M Y" }}</p>
+                    </div>
+
+                    {% if cert.grade %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Grade</label>
+                        <p class="mb-0">
+                            <span class="badge bg-info">{{ cert.get_grade_display }}</span>
+                            {% if cert.percentage %}
+                                ({{ cert.percentage }}%)
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'mark_as_collected' cert.pk %}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Mark as Collected
+                        </a>
+                        <a href="{% url 'certificate_detail' cert.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted small">
+                    <i class="fas fa-clock"></i> Waiting {{ cert.issue_date|timesince }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+            <h3>All Clear!</h3>
+            <p class="text-muted">No certificates pending collection at the moment.</p>
+            <a href="{% url 'certificate_dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

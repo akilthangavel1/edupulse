@@ -1,0 +1,181 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Bulk Record Certificates - EduPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .student-checkbox-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 1rem;
+    }
+    .student-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .student-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-users"></i> Bulk Record Certificates
+                    </h4>
+                    <p class="mb-0 mt-2 small">Perfect for graduation ceremonies</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Please correct the errors:</h5>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Course Selection -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <span class="badge bg-primary">1</span> Select Course
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Course <span class="text-danger">*</span></label>
+                                    {{ form.course }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Certificate Details -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <span class="badge bg-primary">2</span> Certificate Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Issue Date <span class="text-danger">*</span></label>
+                                        {{ form.issue_date }}
+                                        <div class="form-text">Same date for all certificates</div>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Remarks (Optional)</label>
+                                        {{ form.remarks }}
+                                        <div class="form-text">Same remarks for all (e.g., "Graduation Ceremony Dec 2025")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Select Students -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <span class="badge bg-primary">3</span> Select Students
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
+                                        <i class="fas fa-check-square"></i> Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                                        <i class="fas fa-square"></i> Deselect All
+                                    </button>
+                                    <span class="ms-3 text-muted" id="selectedCount">0 students selected</span>
+                                </div>
+
+                                <div class="student-checkbox-container">
+                                    {% for checkbox in form.students %}
+                                    <div class="student-item">
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                                <strong>{{ checkbox.choice_label }}</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center py-3">
+                                        <i class="fas fa-info-circle"></i> No students found.
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Review & Submit</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">
+                                    <strong>Action:</strong> This will record certificates for all selected students.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <div>
+                                <span class="text-danger">*</span> <small class="text-muted">Required fields</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'certificate_dashboard' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-certificate"></i> Record Certificates
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectAll() {
+    document.querySelectorAll('input[name="students"]').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    document.querySelectorAll('input[name="students"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('input[name="students"]:checked').length;
+    document.getElementById('selectedCount').textContent = `${count} student${count !== 1 ? 's' : ''} selected`;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name="students"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    updateSelectedCount();
+});
+</script>
+{% endblock %}

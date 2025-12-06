@@ -1,0 +1,72 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-certificate"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h5>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Student</strong> <span class="text-danger">*</span></label>
+                            {{ form.student }}
+                            <div class="form-text">Select the student who received the certificate</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Course</strong> <span class="text-danger">*</span></label>
+                            {{ form.course }}
+                            <div class="form-text">Select the course</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Issue Date</strong> <span class="text-danger">*</span></label>
+                            {{ form.issue_date }}
+                            <div class="form-text">Date when certificate was given to student</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Remarks</strong></label>
+                            {{ form.remarks }}
+                            <div class="form-text">Optional notes (e.g., "Ceremony", "Collected by father")</div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="text-danger">*</span> <small class="text-muted">Required fields</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'certificate_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

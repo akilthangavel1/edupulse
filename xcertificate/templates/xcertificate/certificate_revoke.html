@@ -1,0 +1,89 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Revoke Certificate - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-ban"></i> Revoke Certificate
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Warning!</h5>
+                        <p class="mb-0">
+                            You are about to <strong>revoke</strong> this certificate. 
+                            This action will invalidate the certificate and mark it as no longer valid.
+                        </p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong>Certificate Details</strong>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Certificate #:</strong> {{ certificate.certificate_number }}</p>
+                            <p class="mb-2"><strong>Student:</strong> {{ certificate.student.student_name }}</p>
+                            <p class="mb-2"><strong>Course:</strong> {{ certificate.course.name }}</p>
+                            <p class="mb-2"><strong>Issue Date:</strong> {{ certificate.issue_date|date:"d M Y" }}</p>
+                            <p class="mb-0"><strong>Current Status:</strong> 
+                                <span class="badge bg-success">{{ certificate.get_status_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Revocation Reason <span class="text-danger">*</span></label>
+                            <textarea class="form-control" 
+                                      id="reason" 
+                                      name="reason" 
+                                      rows="4"
+                                      placeholder="Please explain why this certificate is being revoked..."
+                                      required></textarea>
+                            <div class="form-text">
+                                This reason will be visible when someone tries to verify this certificate.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> 
+                            <small>
+                                <strong>What happens when you revoke:</strong><br>
+                                • Certificate status changes to "Revoked"<br>
+                                • Public verification will show "Certificate Revoked"<br>
+                                • Certificate will no longer be considered valid<br>
+                                • This action is permanent and cannot be easily undone
+                            </small>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmRevoke" required>
+                            <label class="form-check-label" for="confirmRevoke">
+                                I understand that this action will invalidate the certificate
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-ban"></i> Confirm Revocation
+                            </button>
+                            <a href="{% url 'certificate_detail' certificate.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

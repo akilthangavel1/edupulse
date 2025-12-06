@@ -1,0 +1,134 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Certificate Tracker - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-certificate"></i> Certificate Issue Tracker</h2>
+            <p class="text-muted">Simple tracking of issued certificates</p>
+        </div>
+    </div>
+
+    <!-- Statistics Card -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-certificate"></i> Total Certificates
+                    </h5>
+                    <h1 class="mb-0">{{ total_certificates }}</h1>
+                    <small class="text-muted">Certificates recorded</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="{% url 'certificate_create' %}" class="btn btn-success btn-lg w-100 mb-2">
+                                <i class="fas fa-plus-circle"></i><br>
+                                Record New Certificate
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'bulk_certificate_create' %}" class="btn btn-info btn-lg w-100 mb-2">
+                                <i class="fas fa-users"></i><br>
+                                Bulk Record (Ceremony)
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'certificate_list' %}" class="btn btn-primary btn-lg w-100 mb-2">
+                                <i class="fas fa-list"></i><br>
+                                View All Certificates
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Certificates -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Certificates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Certificate #</th>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Issue Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cert in recent_certificates %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'certificate_detail' cert.pk %}">
+                                            <strong>{{ cert.certificate_number }}</strong>
+                                        </a>
+                                    </td>
+                                    <td>{{ cert.student.student_name }}</td>
+                                    <td>{{ cert.course.name }}</td>
+                                    <td>{{ cert.issue_date }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        No certificates yet. <a href="{% url 'certificate_create' %}">Record your first certificate</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'certificate_list' %}" class="btn btn-sm btn-outline-primary">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificates by Course -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> By Course</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in by_course %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.course__name|truncatewords:3 }}
+                            <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No data available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

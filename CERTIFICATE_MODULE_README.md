@@ -70,35 +70,37 @@ The Certificate Management System (`xcertificate`) provides a complete solution 
    - Set display order
 3. Mark as active
 
-### Step 3: Issue Certificate Manually
+### Step 3: Record Certificate Given to Student
+
+**When you physically give a certificate to a student:**
 
 1. Go to: `/admin/xcertificate/studentcertificate/add/`
 2. Fill in certificate details:
    - **Student**: Select student from dropdown
    - **Course**: Select course
    - **Template**: Choose certificate template
-   - **Issue Date**: Set issue date
+   - **Issue Date**: Date certificate was given
    - **Completion Date**: When student completed course
    - **Grade**: Distinction/First Class/Pass/etc.
-   - **Percentage**: Optional
-   - **Status**: Set to "Draft" initially
-3. Select signatories
-4. Add remarks if needed
-5. **Save as Draft**
+   - **Percentage**: Optional score
+   - **Status**: **"Certificate Issued & Given"** (default)
+   - **Collected By**: Student name or parent name
+   - **Remarks**: Any notes (e.g., "Collected by student", "Given at ceremony")
+3. Select signatories (who signed the physical certificate)
+4. **Save**
+5. **Done!** Certificate recorded in system
+   - Certificate number auto-generated (e.g., CERT/2025/0001)
+   - Verification code auto-generated
+   - Ready for verification
 
-### Step 4: Review and Issue
+### Step 4: For Pending Collection (Optional)
 
-1. Review the certificate details
-2. Change status from "Draft" to "Issued"
-3. Certificate number is auto-generated (e.g., CERT/2025/0001)
-4. Verification code is auto-generated
-5. Save the certificate
+**If certificate is ready but student hasn't collected yet:**
 
-### Step 5: Print and Distribute
-
-1. Mark certificate as "Printed" when printed
-2. Mark as "Collected" when student collects it
-3. Record collection date and who collected it
+1. Create certificate record as above
+2. Set status to: **"Pending Collection"**
+3. When student collects, change status to: **"Certificate Issued & Given"**
+4. Update "Collected By" field
 
 ---
 
@@ -156,28 +158,31 @@ Revocation Date: March 1, 2025
 
 ---
 
-## 📊 Certificate Status Workflow
+## 📊 Simplified Certificate Status Workflow
 
 ```
-DRAFT
-  ↓ (Admin reviews and approves)
-ISSUED
-  ↓ (Certificate is printed)
-PRINTED
-  ↓ (Student collects certificate)
-COLLECTED
+PHYSICAL CERTIFICATE GIVEN TO STUDENT
+  ↓ (Record in system)
+CERTIFICATE ISSUED & GIVEN ✅
 ```
 
-### Status Options
+**OR (If certificate ready but not yet collected):**
 
-| Status | Description | Color |
-|--------|-------------|-------|
-| **Draft** | Certificate created but not issued | Gray |
-| **Issued** | Certificate officially issued | Green |
-| **Printed** | Certificate has been printed | Blue |
-| **Collected** | Student has collected certificate | Primary |
-| **Revoked** | Certificate invalidated | Red |
-| **Expired** | Certificate validity expired | Yellow |
+```
+CERTIFICATE READY
+  ↓ (Create record)
+PENDING COLLECTION ⏳
+  ↓ (Student collects)
+CERTIFICATE ISSUED & GIVEN ✅
+```
+
+### Status Options (Simplified)
+
+| Status | Description | When to Use | Color |
+|--------|-------------|-------------|-------|
+| **Certificate Issued & Given** | Certificate physically given to student | Default - use when recording given certificate | Green ✅ |
+| **Pending Collection** | Certificate ready, student hasn't collected | Optional - if you want to track uncollected | Yellow ⏳ |
+| **Revoked** | Certificate invalidated/cancelled | Rare - if certificate needs to be cancelled | Red ✗ |
 
 ---
 
@@ -269,15 +274,15 @@ Go to: `/admin/xcertificate/certificateverification/`
 
 ---
 
-## 🔧 Admin Actions
+## 🔧 Admin Actions (Bulk Operations)
 
 ### Certificate Management
 
-1. **Mark as Issued** - Change status from draft to issued
-2. **Mark as Printed** - Record printing date
-3. **Mark as Collected** - Record collection
-4. **Revoke Certificates** - Invalidate certificates
-5. **Generate PDFs** - Bulk PDF generation
+When you select multiple certificates in the admin, you can use these actions:
+
+1. **✓ Mark as Issued & Given to Student** - Record that certificates were given
+2. **⏳ Mark as Pending Collection** - Mark certificates as ready but not collected
+3. **✗ Revoke Selected Certificates** - Invalidate certificates
 
 ### Batch Processing
 
@@ -293,19 +298,20 @@ For issuing multiple certificates at once:
 
 ## 🎯 Best Practices
 
-### 1. Certificate Issuance
+### 1. Certificate Recording
 
 ✅ **Do:**
-- Review certificate details carefully before issuing
-- Keep certificates in "Draft" status until final review
-- Use consistent grade terminology
-- Add internal remarks for record-keeping
-- Select appropriate signatories
+- Record certificates immediately after giving them to students
+- Use consistent grade terminology (Distinction, First Class, Pass)
+- Fill in "Collected By" field (student or parent name)
+- Add remarks for tracking (e.g., "Ceremony", "Office collection")
+- Set correct issue and completion dates
+- Select appropriate signatories who signed the physical certificate
 
 ❌ **Don't:**
-- Issue certificates without verification
-- Skip the draft stage for important certificates
-- Forget to set completion dates
+- Forget to record certificates after distribution
+- Leave "Collected By" field empty
+- Skip completion dates
 
 ### 2. Template Management
 

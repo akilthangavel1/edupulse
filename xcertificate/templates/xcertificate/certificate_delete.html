@@ -1,0 +1,53 @@
+{% extends 'xstudent/base.html' %}
+{% load static %}
+
+{% block title %}Delete Certificate - EduPulse{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-trash"></i> Delete Certificate Record
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Warning!</h5>
+                        <p class="mb-0">
+                            Are you sure you want to delete this certificate record? This action cannot be undone.
+                        </p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong>Certificate Details</strong>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Certificate #:</strong> {{ certificate.certificate_number }}</p>
+                            <p class="mb-2"><strong>Student:</strong> {{ certificate.student.student_name }}</p>
+                            <p class="mb-2"><strong>Course:</strong> {{ certificate.course.name }}</p>
+                            <p class="mb-0"><strong>Issue Date:</strong> {{ certificate.issue_date|date:"d M Y" }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash"></i> Confirm Delete
+                            </button>
+                            <a href="{% url 'certificate_detail' certificate.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
