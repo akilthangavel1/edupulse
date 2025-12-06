@@ -102,15 +102,40 @@ Django admin automatically generates URLs based on **model names** (lowercase), 
 
 ---
 
-## Kit Management (xkit)
+## Kit Materials Management (xkit)
 
-⚠️ **Status:** App exists but admin status unknown. Check `xkit/admin.py` and `xkit/models.py`
+| Model | Admin URL |
+|-------|-----------|
+| MaterialCategory | `/admin/xkit/materialcategory/` |
+| Supplier | `/admin/xkit/supplier/` |
+| Material | `/admin/xkit/material/` |
+| MaterialKit | `/admin/xkit/materialkit/` ⚠️ |
+| KitMaterial | `/admin/xkit/kitmaterial/` |
+| StockMovement | `/admin/xkit/stockmovement/` |
+| KitAssemblyLog | `/admin/xkit/kitassemblylog/` ⚠️ |
+
+⚠️ **Previously incorrect URLs:**
+- ❌ `/admin/xkit/kit/` → ✅ `/admin/xkit/materialkit/`
+- ❌ `/admin/xkit/assemblylog/` → ✅ `/admin/xkit/kitassemblylog/`
+
+**Note:** `MaterialKit` is different from `xcoursefee.Kit` - they can be linked but are separate models.
 
 ---
 
-## Broadcast Management (xbroadcast)
+## Broadcast & Lead Management (xbroadcast)
 
-⚠️ **Status:** App exists but admin status unknown. Check `xbroadcast/admin.py` and `xbroadcast/models.py`
+| Model | Admin URL |
+|-------|-----------|
+| BroadcastTemplate | `/admin/xbroadcast/broadcasttemplate/` ⚠️ |
+| Broadcast | `/admin/xbroadcast/broadcast/` |
+| BroadcastRecipient | `/admin/xbroadcast/broadcastrecipient/` |
+| Lead | `/admin/xbroadcast/lead/` |
+| LeadActivity | `/admin/xbroadcast/leadactivity/` |
+| LeadScore | `/admin/xbroadcast/leadscore/` |
+| CommunicationLog | `/admin/xbroadcast/communicationlog/` |
+
+⚠️ **Previously incorrect URL:**
+- ❌ `/admin/xbroadcast/messagetemplate/` → ✅ `/admin/xbroadcast/broadcasttemplate/`
 
 ---
 

@@ -126,14 +126,15 @@
 - `/admin/xkit/materialcategory/` - Material categories
 - `/admin/xkit/supplier/` - Suppliers
 - `/admin/xkit/material/` - Materials
-- `/admin/xkit/kit/` - Kits
+- `/admin/xkit/materialkit/` - Material kits
 - `/admin/xkit/kitmaterial/` - Kit materials
 - `/admin/xkit/stockmovement/` - Stock movements
-- `/admin/xkit/assemblylog/` - Assembly logs
+- `/admin/xkit/kitassemblylog/` - Kit assembly logs
 
 ### Broadcast Management (Admin Interface)
-- `/admin/xbroadcast/messagetemplate/` - Message templates
+- `/admin/xbroadcast/broadcasttemplate/` - Broadcast templates
 - `/admin/xbroadcast/broadcast/` - Broadcasts
+- `/admin/xbroadcast/broadcastrecipient/` - Broadcast recipients
 - `/admin/xbroadcast/lead/` - Leads
 - `/admin/xbroadcast/leadactivity/` - Lead activities
 - `/admin/xbroadcast/leadscore/` - Lead scores
