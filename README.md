@@ -201,7 +201,7 @@ We have created comprehensive URL reference documentation:
 | **Students (Admin)** | http://localhost:8000/admin/xstudent/newstudent/ | Staff+ |
 | **Courses (Admin)** | http://localhost:8000/admin/xcoursefee/course/ | Staff+ |
 | **Payments (Admin)** | http://localhost:8000/admin/xcoursefee/payment/ | Staff+ |
-| **Marks (Admin)** | http://localhost:8000/admin/xmark/mark/ | Staff+ |
+| **Marks (Admin)** | http://localhost:8000/admin/xmark/studentmark/ | Staff+ |
 
 ---
 

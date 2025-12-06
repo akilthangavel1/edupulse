@@ -83,28 +83,40 @@
 ### Marks Management (Admin Interface)
 - `/admin/xmark/subject/` - Subject list
 - `/admin/xmark/assessmenttype/` - Assessment types
-- `/admin/xmark/mark/` - Mark records
+- `/admin/xmark/studentmark/` - Mark records
 - `/admin/xmark/gradescale/` - Grade scales
-- `/admin/xmark/gradesummary/` - Grade summaries
+- `/admin/xmark/studentgradesummary/` - Grade summaries
 
 ### Faculty Management (Admin Interface)
 - `/admin/xtrainer/faculty/` - Faculty list
 - `/admin/xtrainer/facultyonboarding/` - Onboarding records
-- `/admin/xtrainer/leaverequest/` - Leave requests
+- `/admin/xtrainer/facultyleaverequest/` - Leave requests
 - `/admin/xtrainer/backupschedule/` - Backup schedules
+- `/admin/xtrainer/facultyattendance/` - Faculty attendance
 - `/admin/xtrainer/facultypayment/` - Faculty payments
 - `/admin/xtrainer/examrequest/` - Exam requests
+- `/admin/xtrainer/notificationlog/` - Notification logs
 
 ### Batch Management (Admin Interface)
+> **Note:** Batch models are not yet registered in Django admin. Register them in `xbatch/admin.py` to enable admin access.
+<!--
 - `/admin/xbatch/batch/` - Batch list
 - `/admin/xbatch/batchstudent/` - Batch student assignments
 - `/admin/xbatch/batchtransfer/` - Transfer records
-- `/admin/xbatch/facultychange/` - Faculty changes
+- `/admin/xbatch/batchfacultychange/` - Faculty changes
 - `/admin/xbatch/whatsappgroup/` - WhatsApp groups
+-->
 
 ### Transport Management (Admin Interface)
+> **Note:** Transport models are not yet registered in Django admin. Register them in `xtransport/admin.py` to enable admin access.
+<!--
 - `/admin/xtransport/vendor/` - Vendor list
 - `/admin/xtransport/vendorrequest/` - Vendor requests
+- `/admin/xtransport/studenttransportassignment/` - Student transport assignments
+- `/admin/xtransport/vendorpayment/` - Vendor payments
+- `/admin/xtransport/monthlypaymentgeneration/` - Payment generation
+- `/admin/xtransport/vendorrating/` - Vendor ratings
+-->
 - `/admin/xtransport/studenttransport/` - Student assignments
 - `/admin/xtransport/vendorpayment/` - Vendor payments
 - `/admin/xtransport/monthlypayment/` - Monthly payments

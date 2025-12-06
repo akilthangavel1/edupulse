@@ -99,7 +99,7 @@
 /admin/xstudent/newstudent/       - Students (admin)
 /admin/xcoursefee/course/         - Courses (admin)
 /admin/xcoursefee/payment/        - Payments (admin)
-/admin/xmark/mark/                - Marks (admin)
+/admin/xmark/studentmark/         - Marks (admin)
 /admin/xtrainer/faculty/          - Faculty (admin)
 ```
 
