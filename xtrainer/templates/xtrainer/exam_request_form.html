@@ -1,0 +1,194 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Record Exam Details - EduPulse{% endblock %}
+
+{% block header %}Record Exam Details{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Please correct the errors below:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.faculty.id_for_label }}" class="form-label">
+                        Faculty <span class="text-danger">*</span>
+                    </label>
+                    {{ form.faculty }}
+                    {% if form.faculty.errors %}
+                        <div class="text-danger">{{ form.faculty.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.course.id_for_label }}" class="form-label">
+                        Course <span class="text-danger">*</span>
+                    </label>
+                    {{ form.course }}
+                    {% if form.course.errors %}
+                        <div class="text-danger">{{ form.course.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label for="{{ form.exam_title.id_for_label }}" class="form-label">
+                        Exam Title <span class="text-danger">*</span>
+                    </label>
+                    {{ form.exam_title }}
+                    {% if form.exam_title.errors %}
+                        <div class="text-danger">{{ form.exam_title.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.exam_type.id_for_label }}" class="form-label">
+                        Exam Type <span class="text-danger">*</span>
+                    </label>
+                    {{ form.exam_type }}
+                    {% if form.exam_type.errors %}
+                        <div class="text-danger">{{ form.exam_type.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-danger">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.proposed_date.id_for_label }}" class="form-label">
+                        Exam Date <span class="text-danger">*</span>
+                    </label>
+                    {{ form.proposed_date }}
+                    {% if form.proposed_date.errors %}
+                        <div class="text-danger">{{ form.proposed_date.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.proposed_start_time.id_for_label }}" class="form-label">
+                        Start Time <span class="text-danger">*</span>
+                    </label>
+                    {{ form.proposed_start_time }}
+                    {% if form.proposed_start_time.errors %}
+                        <div class="text-danger">{{ form.proposed_start_time.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.duration_hours.id_for_label }}" class="form-label">
+                        Duration (Hours) <span class="text-danger">*</span>
+                    </label>
+                    {{ form.duration_hours }}
+                    {% if form.duration_hours.errors %}
+                        <div class="text-danger">{{ form.duration_hours.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.total_marks.id_for_label }}" class="form-label">
+                        Total Marks <span class="text-danger">*</span>
+                    </label>
+                    {{ form.total_marks }}
+                    {% if form.total_marks.errors %}
+                        <div class="text-danger">{{ form.total_marks.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.passing_marks.id_for_label }}" class="form-label">
+                        Passing Marks <span class="text-danger">*</span>
+                    </label>
+                    {{ form.passing_marks }}
+                    {% if form.passing_marks.errors %}
+                        <div class="text-danger">{{ form.passing_marks.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.number_of_questions.id_for_label }}" class="form-label">
+                        Number of Questions
+                    </label>
+                    {{ form.number_of_questions }}
+                    {% if form.number_of_questions.errors %}
+                        <div class="text-danger">{{ form.number_of_questions.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.room_requirements.id_for_label }}" class="form-label">
+                    Room Requirements
+                </label>
+                {{ form.room_requirements }}
+                {% if form.room_requirements.errors %}
+                    <div class="text-danger">{{ form.room_requirements.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.special_materials.id_for_label }}" class="form-label">
+                    Special Materials Required
+                </label>
+                {{ form.special_materials }}
+                {% if form.special_materials.errors %}
+                    <div class="text-danger">{{ form.special_materials.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3 form-check">
+                {{ form.supervision_required }}
+                <label class="form-check-label" for="{{ form.supervision_required.id_for_label }}">
+                    Supervision Required
+                </label>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.target_students.id_for_label }}" class="form-label">
+                    Target Students
+                </label>
+                {{ form.target_students }}
+                {% if form.target_students.errors %}
+                    <div class="text-danger">{{ form.target_students.errors }}</div>
+                {% endif %}
+                <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple students</small>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Exam Details
+                </button>
+                <a href="{% url 'exam_request_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

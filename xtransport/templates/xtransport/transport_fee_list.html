@@ -1,27 +1,202 @@
-{% extends 'base_placeholder.html' %}
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Transport Fee Entries - EduPulse{% endblock %}
+
+{% block header %}Transport Fee Management{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'xtransport:transport_fee_export' %}?{{ request.GET.urlencode }}" class="btn btn-success me-2">
+    <i class="fas fa-file-export"></i> Export to CSV
+</a>
+<a href="{% url 'xtransport:transport_fee_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Add New Fee
+</a>
+{% endblock %}
 
 {% block content %}
-<h1>Transport Fees</h1>
+<style>
+    .opacity-50 { opacity: 0.5; }
+</style>
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Student</th>
-            <th>Amount</th>
-            <th>Date</th>
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Total Amount</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_amount|default:0|floatformat:3 }} KWD</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Total Entries</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_count|default:0 }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-receipt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-filter"></i> Filters
+            {% if filters.student or filters.from_date or filters.to_date or filters.min_amount or filters.max_amount or filters.search %}
+                <a href="{% url 'xtransport:transport_fee_list' %}" class="btn btn-sm btn-outline-secondary float-end">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="search" class="form-label">Search</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       placeholder="Student name/admission number..." 
+                       value="{{ filters.search|default:'' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="student" class="form-label">Student</label>
+                <select class="form-select" id="student" name="student">
+                    <option value="">All Students</option>
+                    {% for student in students %}
+                        <option value="{{ student.id }}" {% if filters.student == student.id|stringformat:"s" %}selected{% endif %}>
+                            {{ student.student_name }} ({{ student.admission_number }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="from_date" class="form-label">From Date</label>
+                <input type="date" class="form-control" id="from_date" name="from_date" 
+                       value="{{ filters.from_date|default:'' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="to_date" class="form-label">To Date</label>
+                <input type="date" class="form-control" id="to_date" name="to_date" 
+                       value="{{ filters.to_date|default:'' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="min_amount" class="form-label">Min Amount (KWD)</label>
+                <input type="number" step="0.001" class="form-control" id="min_amount" name="min_amount" 
+                       placeholder="0.000" value="{{ filters.min_amount|default:'' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="max_amount" class="form-label">Max Amount (KWD)</label>
+                <input type="number" step="0.001" class="form-control" id="max_amount" name="max_amount" 
+                       placeholder="999.999" value="{{ filters.max_amount|default:'' }}">
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'xtransport:transport_fee_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Fee List Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Admission No.</th>
+                        <th>Student Name</th>
+                        <th>Amount (KWD)</th>
+                        <th>Payment Date</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for fee in fees %}
         <tr>
-            <td>{{ fee.id }}</td>
-            <td>{{ fee.student }}</td>
-            <td>{{ fee.amount }}</td>
-            <td>{{ fee.date }}</td>
+                        <td>{{ fee.student.admission_number }}</td>
+                        <td>{{ fee.student.student_name }}</td>
+                        <td><strong>{{ fee.amount|floatformat:3 }}</strong></td>
+                        <td>{{ fee.payment_date|date:"d M Y" }}</td>
+                        <td>
+                            {% if fee.notes %}
+                                <small class="text-muted">{{ fee.notes|truncatewords:10 }}</small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'xtransport:transport_fee_edit' fee.id %}" 
+                                   class="btn btn-sm btn-warning" 
+                                   title="Edit Fee">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'xtransport:transport_fee_receipt' fee.id %}" 
+                                   class="btn btn-sm btn-success" 
+                                   title="Print Receipt"
+                                   target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                <a href="{% url 'xtransport:transport_fee_resend_email' fee.id %}" 
+                                   class="btn btn-sm btn-info" 
+                                   title="Resend Email Notification"
+                                   onclick="return confirm('Resend email notification to parents of {{ fee.student.student_name }}?');">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            No transport fee entries found matching your filters.
+                        </td>
         </tr>
         {% endfor %}
     </tbody>
+                {% if fees %}
+                <tfoot class="table-light">
+                    <tr>
+                        <th colspan="2" class="text-end">Filtered Total:</th>
+                        <th colspan="4">
+                            <strong>{{ stats.total_amount|default:0|floatformat:3 }} KWD</strong>
+                            <span class="text-muted ms-2">({{ stats.total_count }} entries)</span>
+                        </th>
+                    </tr>
+                </tfoot>
+                {% endif %}
 </table>
-
+        </div>
+    </div>
+</div>
 {% endblock %}

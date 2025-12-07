@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Fee Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+        .fee-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .value {
+            color: #333;
+        }
+        .amount {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .footer {
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-size: 12px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .greeting {
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚌 Transport Fee Notification</h1>
+        <p>EduPulse - Student Management System</p>
+    </div>
+    
+    <div class="content">
+        <div class="greeting">
+            <p>Dear {{ father_name }} and {{ mother_name }},</p>
+        </div>
+        
+        <p>
+            This is to inform you that a transport fee has been 
+            <strong>{% if action == 'created' %}recorded{% else %}updated{% endif %}</strong> 
+            for your ward <strong>{{ student.student_name }}</strong> 
+            (Admission No: {{ student.admission_number }}).
+        </p>
+        
+        <div class="fee-details">
+            <h3 style="margin-top: 0; color: #667eea;">Fee Details</h3>
+            
+            <div class="detail-row">
+                <span class="label">Student Name:</span>
+                <span class="value">{{ student.student_name }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Admission Number:</span>
+                <span class="value">{{ student.admission_number }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Grade:</span>
+                <span class="value">{{ student.grade }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Program:</span>
+                <span class="value">{{ student.program }}</span>
+            </div>
+            
+            <div class="detail-row" style="border-top: 2px solid #667eea; margin-top: 15px; padding-top: 15px;">
+                <span class="label">Fee Amount:</span>
+                <span class="amount">{{ fee.amount }} KWD</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Payment Date:</span>
+                <span class="value">{{ fee.payment_date|date:"d M Y" }}</span>
+            </div>
+            
+            {% if fee.notes %}
+            <div class="detail-row">
+                <span class="label">Notes:</span>
+                <span class="value">{{ fee.notes }}</span>
+            </div>
+            {% endif %}
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <span class="status-badge">✓ Fee Recorded</span>
+            </div>
+        </div>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            <strong>Note:</strong> Please keep this email for your records. 
+            If you have any questions or concerns regarding this fee, 
+            please contact the school administration.
+        </p>
+        
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <strong>⚠️ Important:</strong> If you believe this fee entry is incorrect, 
+            please contact the school office immediately.
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>EduPulse - Student Management System</strong></p>
+        <p>This is an automated notification. Please do not reply to this email.</p>
+        <p>© {{ "now"|date:"Y" }} EduPulse. All rights reserved.</p>
+    </div>
+</body>
+</html>
+

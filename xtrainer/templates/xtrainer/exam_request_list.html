@@ -1,17 +1,231 @@
 {% extends 'xstudent/base.html' %}
-{% block title %}Exam Requests{% endblock %}
+
+{% block title %}Exam Requests - EduPulse{% endblock %}
+
+{% block header %}Exam Details Tracker{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'exam_request_create' %}" class="btn btn-primary">
+    <i class="fas fa-clipboard-list"></i> Record Exam Details
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="card shadow">
-        <div class="card-header">
-            <h5><i class="fas fa-file-alt"></i> Exam Requests</h5>
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Pending</h6>
+                        <h3 class="card-title mb-0">{{ stats.pending_requests }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-clock fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <p class="text-center text-muted py-5">
-                Exam request management is being implemented.<br>
-                <small>This page will show all faculty exam creation requests.</small>
-            </p>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Scheduled</h6>
+                        <h3 class="card-title mb-0">{{ stats.scheduled_requests }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar-check fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Completed</h6>
+                        <h3 class="card-title mb-0">{{ stats.completed_requests }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-check-double fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Total Exams</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_requests }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-clipboard-list fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-filter"></i> Filters
+            {% if faculty_filter or status_filter or exam_type_filter %}
+                <a href="{% url 'exam_request_list' %}" class="btn btn-sm btn-outline-secondary float-end">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="faculty" class="form-label">Faculty</label>
+                <select class="form-select" id="faculty" name="faculty">
+                    <option value="">All Faculty</option>
+                    {% for faculty in faculty_list %}
+                        <option value="{{ faculty.id }}" {% if faculty_filter == faculty.id|stringformat:"s" %}selected{% endif %}>
+                            {{ faculty.first_name }} {{ faculty.last_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All Status</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="exam_type" class="form-label">Exam Type</label>
+                <select class="form-select" id="exam_type" name="exam_type">
+                    <option value="">All Types</option>
+                    {% for value, label in exam_type_choices %}
+                        <option value="{{ value }}" {% if exam_type_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <a href="{% url 'exam_request_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Exam Details Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Exam ID</th>
+                        <th>Faculty</th>
+                        <th>Course</th>
+                        <th>Exam Title</th>
+                        <th>Type</th>
+                        <th>Exam Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in exam_requests %}
+                    <tr>
+                        <td><strong>{{ request.request_id }}</strong></td>
+                        <td>{{ request.faculty.first_name }} {{ request.faculty.last_name }}</td>
+                        <td>{{ request.course.name }}</td>
+                        <td>{{ request.exam_title }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ request.get_exam_type_display }}</span>
+                        </td>
+                        <td>{{ request.proposed_date|date:"d M Y" }} {{ request.proposed_start_time|time:"h:i A" }}</td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                                <span class="badge bg-warning">{{ request.get_status_display }}</span>
+                            {% elif request.status == 'approved' %}
+                                <span class="badge bg-success">{{ request.get_status_display }}</span>
+                            {% elif request.status == 'scheduled' %}
+                                <span class="badge bg-info">{{ request.get_status_display }}</span>
+                            {% elif request.status == 'completed' %}
+                                <span class="badge bg-primary">{{ request.get_status_display }}</span>
+                            {% elif request.status == 'rejected' %}
+                                <span class="badge bg-danger">{{ request.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ request.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'exam_request_detail' request.pk %}" class="btn btn-sm btn-info" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            No exam details found matching your filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_type_filter %}&exam_type={{ exam_type_filter }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_type_filter %}&exam_type={{ exam_type_filter }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_type_filter %}&exam_type={{ exam_type_filter }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_type_filter %}&exam_type={{ exam_type_filter }}{% endif %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

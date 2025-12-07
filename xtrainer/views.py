@@ -716,6 +716,15 @@ def exam_request_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Statistics
+    stats = {
+        'total_requests': ExamRequest.objects.count(),
+        'pending_requests': ExamRequest.objects.filter(status='pending').count(),
+        'approved_requests': ExamRequest.objects.filter(status='approved').count(),
+        'scheduled_requests': ExamRequest.objects.filter(status='scheduled').count(),
+        'completed_requests': ExamRequest.objects.filter(status='completed').count(),
+    }
+    
     # Filter options
     faculty_list = Faculty.objects.filter(status='active').order_by('first_name', 'last_name')
     
@@ -729,6 +738,7 @@ def exam_request_list(request):
         'faculty_list': faculty_list,
         'status_choices': ExamRequest.STATUS_CHOICES,
         'exam_type_choices': ExamRequest.EXAM_TYPE_CHOICES,
+        'stats': stats,
     }
     return render(request, 'xtrainer/exam_request_list.html', context)
 
