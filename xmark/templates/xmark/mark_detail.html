@@ -11,6 +11,14 @@
 
 {% block page_actions %}
     <div class="btn-group">
+        {% if mark.status == 'published' %}
+        <a href="{% url 'mark_resend_email' mark.pk %}" 
+           class="btn btn-info" 
+           title="Resend Email to Parents"
+           onclick="return confirm('Resend marks notification email to parents of {{ mark.student.student_name }}?');">
+            <i class="bi bi-envelope"></i> Resend Email
+        </a>
+        {% endif %}
         <a href="{% url 'mark_edit' mark.pk %}" class="btn btn-primary">
             <i class="bi bi-pencil"></i> Edit
         </a>

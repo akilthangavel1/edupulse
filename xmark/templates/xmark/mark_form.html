@@ -194,6 +194,24 @@
                             <div class="form-text">Internal notes (not visible to students)</div>
                         </div>
                         
+                        <!-- Email Notification Option -->
+                        <div class="mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="send_email" name="send_email" checked>
+                                        <label class="form-check-label" for="send_email">
+                                            <i class="bi bi-envelope"></i> <strong>Send Email Notification to Parents</strong>
+                                        </label>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-info-circle"></i> Email will be sent only if status is set to "Published". 
+                                        Parents will receive marks details via email.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Calculated Fields Display (if editing) -->
                         {% if mark %}
                             <div class="row">

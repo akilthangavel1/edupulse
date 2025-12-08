@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Report Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+        .student-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .grade-good {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .grade-average {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .grade-poor {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .footer {
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-size: 12px;
+        }
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #667eea;
+        }
+        .summary h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Student Report Card</h1>
+        {% if report_period %}
+        <p style="font-size: 18px;">{{ report_period }}</p>
+        {% endif %}
+        <p>EduPulse - Student Management System</p>
+    </div>
+    
+    <div class="content">
+        <div>
+            <p>Dear {{ father_name }} and {{ mother_name }},</p>
+        </div>
+        
+        <p>
+            Please find below the academic report card for your ward <strong>{{ student.student_name }}</strong>.
+        </p>
+        
+        <div class="student-info">
+            <table style="border: none; margin: 0;">
+                <tr style="border: none;">
+                    <td style="border: none;"><strong>Student Name:</strong></td>
+                    <td style="border: none;">{{ student.student_name }}</td>
+                    <td style="border: none;"><strong>Admission No:</strong></td>
+                    <td style="border: none;">{{ student.admission_number }}</td>
+                </tr>
+                <tr style="border: none;">
+                    <td style="border: none;"><strong>Grade/Class:</strong></td>
+                    <td style="border: none;">{{ student.grade }}</td>
+                    <td style="border: none;"><strong>Program:</strong></td>
+                    <td style="border: none;">{{ student.program }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h3 style="color: #667eea; margin-top: 30px;">Academic Performance</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Assessment</th>
+                    <th>Marks</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mark in marks %}
+                <tr>
+                    <td><strong>{{ mark.subject.name }}</strong></td>
+                    <td>{{ mark.assessment_type.name }}</td>
+                    <td>{{ mark.marks_obtained }} / {{ mark.total_marks }}</td>
+                    <td>{{ mark.percentage|floatformat:2 }}%</td>
+                    <td>
+                        {% if mark.percentage >= 80 %}
+                            <span class="grade-good">{{ mark.grade|default:"-" }}</span>
+                        {% elif mark.percentage >= 50 %}
+                            <span class="grade-average">{{ mark.grade|default:"-" }}</span>
+                        {% else %}
+                            <span class="grade-poor">{{ mark.grade|default:"-" }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="summary">
+            <h3>Performance Summary</h3>
+            <p style="color: #666;">
+                Your child has completed {{ marks|length }} assessment(s). 
+                Please review the marks and encourage continued academic excellence.
+            </p>
+            <p style="color: #666; margin-top: 15px;">
+                <strong>Note:</strong> Individual subject teachers are available for consultation 
+                if you have questions about specific assessments or need additional support for your child.
+            </p>
+        </div>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            <strong>Important:</strong> This report card is for your information. 
+            If you notice any discrepancies or have concerns, please contact the school office immediately.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>EduPulse - Student Management System</strong></p>
+        <p>This is an automated notification. Please do not reply to this email.</p>
+        <p>For academic queries, contact the respective subject teachers.</p>
+        <p>© {{ "now"|date:"Y" }} EduPulse. All rights reserved.</p>
+    </div>
+</body>
+</html>
+

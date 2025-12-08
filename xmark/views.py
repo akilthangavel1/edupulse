@@ -18,6 +18,7 @@ from .forms import (
 )
 from xstudent.models import NewStudent
 from xcoursefee.models import Course, StudentEnrollment
+from .email_notifications import send_marks_published_notification, send_marks_updated_notification
 
 
 # Dashboard View
@@ -229,7 +230,17 @@ def mark_create(request):
             mark = form.save(commit=False)
             mark.entered_by = request.user
             mark.save()
-            messages.success(request, 'Mark entry created successfully!')
+            
+            # Send email notification if mark is published
+            send_email = request.POST.get('send_email', 'on') == 'on'
+            if send_email and mark.status == 'published':
+                if send_marks_published_notification(mark):
+                    messages.success(request, 'Mark entry created and published successfully! Email notification sent to parents.')
+                else:
+                    messages.success(request, 'Mark entry created successfully! However, email notification could not be sent.')
+            else:
+                messages.success(request, 'Mark entry created successfully!')
+            
             return redirect('mark_list')
     else:
         form = StudentMarkForm(course_id=course_id)
@@ -244,12 +255,31 @@ def mark_create(request):
 def mark_edit(request, pk):
     """Edit existing mark"""
     mark = get_object_or_404(StudentMark, pk=pk)
+    original_status = mark.status
     
     if request.method == 'POST':
         form = StudentMarkForm(request.POST, instance=mark)
         if form.is_valid():
             mark = form.save()
-            messages.success(request, 'Mark updated successfully!')
+            
+            # Send email notification if mark is newly published or updated while published
+            send_email = request.POST.get('send_email', 'on') == 'on'
+            if send_email and mark.status == 'published':
+                if original_status != 'published':
+                    # Newly published
+                    if send_marks_published_notification(mark):
+                        messages.success(request, 'Mark updated and published successfully! Email notification sent to parents.')
+                    else:
+                        messages.success(request, 'Mark updated successfully! However, email notification could not be sent.')
+                else:
+                    # Updated while published
+                    if send_marks_updated_notification(mark):
+                        messages.success(request, 'Mark updated successfully! Update notification sent to parents.')
+                    else:
+                        messages.success(request, 'Mark updated successfully! However, email notification could not be sent.')
+            else:
+                messages.success(request, 'Mark updated successfully!')
+            
             return redirect('mark_list')
     else:
         form = StudentMarkForm(instance=mark)
@@ -279,6 +309,23 @@ def mark_detail(request, pk):
     }
     
     return render(request, 'xmark/mark_detail.html', context)
+
+
+@login_required
+def mark_resend_email(request, pk):
+    """Resend email notification for a published mark"""
+    mark = get_object_or_404(StudentMark, pk=pk)
+    
+    if mark.status != 'published':
+        messages.warning(request, 'Email notifications are only sent for published marks.')
+        return redirect('mark_detail', pk=pk)
+    
+    if send_marks_published_notification(mark):
+        messages.success(request, f'Email notification resent successfully to parents of {mark.student.student_name}!')
+    else:
+        messages.error(request, 'Failed to send email notification. Please check parent email addresses.')
+    
+    return redirect('mark_detail', pk=pk)
 
 
 @login_required

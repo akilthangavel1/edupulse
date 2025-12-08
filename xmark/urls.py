@@ -16,6 +16,7 @@ urlpatterns = [
     path('marks/create/', views.mark_create, name='mark_create'),
     path('marks/<int:pk>/', views.mark_detail, name='mark_detail'),
     path('marks/<int:pk>/edit/', views.mark_edit, name='mark_edit'),
+    path('marks/<int:pk>/resend-email/', views.mark_resend_email, name='mark_resend_email'),
     path('marks/bulk-entry/', views.bulk_mark_entry, name='bulk_mark_entry'),
     
     # Assessment Type URLs
