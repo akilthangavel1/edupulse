@@ -1,0 +1,211 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Backup Schedule Details - EduPulse{% endblock %}
+
+{% block header %}Backup Schedule Details{% endblock %}
+
+{% block header_actions %}
+{% if can_confirm %}
+<form method="post" action="{% url 'backup_schedule_confirm' backup_schedule.pk %}" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success" onclick="return confirm('Confirm this backup schedule?');">
+        <i class="fas fa-check-circle"></i> Confirm Backup
+    </button>
+</form>
+{% endif %}
+<a href="{% url 'backup_schedule_list' %}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Back to List
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Status Alert -->
+{% if backup_schedule.backup_confirmed %}
+<div class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <strong>Confirmed</strong> - This backup schedule has been confirmed.
+    {% if backup_schedule.backup_confirmation_date %}
+    Confirmed on {{ backup_schedule.backup_confirmation_date|date:"F d, Y" }} at {{ backup_schedule.backup_confirmation_date|time:"h:i A" }}
+    {% endif %}
+</div>
+{% elif backup_schedule.status == 'scheduled' %}
+<div class="alert alert-warning">
+    <i class="fas fa-clock"></i> <strong>Awaiting Confirmation</strong> - Please confirm your availability for this backup class.
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Basic Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Basic Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th>Schedule ID:</th>
+                        <td><strong>{{ backup_schedule.schedule_id }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if backup_schedule.status == 'scheduled' %}
+                                <span class="badge bg-warning">{{ backup_schedule.get_status_display }}</span>
+                            {% elif backup_schedule.status == 'confirmed' %}
+                                <span class="badge bg-success">{{ backup_schedule.get_status_display }}</span>
+                            {% elif backup_schedule.status == 'completed' %}
+                                <span class="badge bg-primary">{{ backup_schedule.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ backup_schedule.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Course:</th>
+                        <td>{{ backup_schedule.course.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Batch/Class:</th>
+                        <td>{{ backup_schedule.batch_name }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schedule Details -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Schedule Details</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th>Date:</th>
+                        <td><strong>{{ backup_schedule.date|date:"l, F d, Y" }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Start Time:</th>
+                        <td>{{ backup_schedule.start_time|time:"h:i A" }}</td>
+                    </tr>
+                    <tr>
+                        <th>End Time:</th>
+                        <td>{{ backup_schedule.end_time|time:"h:i A" }}</td>
+                    </tr>
+                    {% if backup_schedule.room_location %}
+                    <tr>
+                        <th>Room/Location:</th>
+                        <td>{{ backup_schedule.room_location }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Faculty Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Original Faculty</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ backup_schedule.original_faculty.first_name }} {{ backup_schedule.original_faculty.last_name }}</p>
+                <p><strong>Email:</strong> {{ backup_schedule.original_faculty.email }}</p>
+                <p><strong>Phone:</strong> {{ backup_schedule.original_faculty.phone }}</p>
+                {% if backup_schedule.leave_request %}
+                <p class="mb-0">
+                    <strong>Related Leave:</strong>
+                    <a href="{% url 'faculty_leave_request_detail' backup_schedule.leave_request.pk %}">
+                        {{ backup_schedule.leave_request.request_id }}
+                    </a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-user-check"></i> Backup Faculty</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ backup_schedule.backup_faculty.first_name }} {{ backup_schedule.backup_faculty.last_name }}</p>
+                <p><strong>Email:</strong> {{ backup_schedule.backup_faculty.email }}</p>
+                <p><strong>Phone:</strong> {{ backup_schedule.backup_faculty.phone }}</p>
+                <p class="mb-0">
+                    <strong>Confirmed:</strong>
+                    {% if backup_schedule.backup_confirmed %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Information -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Additional Information</h5>
+            </div>
+            <div class="card-body">
+                {% if backup_schedule.notes %}
+                <p><strong>Notes:</strong></p>
+                <p>{{ backup_schedule.notes }}</p>
+                {% else %}
+                <p class="text-muted">No additional notes.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Status -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-envelope"></i> Notification Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Backup Faculty Notified:</strong></p>
+                        {% if backup_schedule.notification_sent_to_backup %}
+                            <span class="badge bg-success"><i class="fas fa-check"></i> Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fas fa-times"></i> No</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Students Notified:</strong></p>
+                        {% if backup_schedule.notification_sent_to_students %}
+                            <span class="badge bg-success"><i class="fas fa-check"></i> Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fas fa-times"></i> No</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Notification Date:</strong></p>
+                        {% if backup_schedule.notification_date %}
+                            {{ backup_schedule.notification_date|date:"M d, Y h:i A" }}
+                        {% else %}
+                            <span class="text-muted">Not sent yet</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

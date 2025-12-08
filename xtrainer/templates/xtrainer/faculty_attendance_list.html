@@ -1,0 +1,257 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Faculty Attendance - EduPulse{% endblock %}
+
+{% block header %}Faculty Attendance Tracker{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'faculty_attendance_create' %}" class="btn btn-primary">
+    <i class="fas fa-user-check"></i> Record Attendance
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Present Today</h6>
+                        <h3 class="card-title mb-0">{{ stats.present_today }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-check-circle fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Absent Today</h6>
+                        <h3 class="card-title mb-0">{{ stats.absent_today }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-times-circle fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Late Today</h6>
+                        <h3 class="card-title mb-0">{{ stats.late_today }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-clock fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-white-50">Total Records</h6>
+                        <h3 class="card-title mb-0">{{ stats.total_records }}</h3>
+                    </div>
+                    <div>
+                        <i class="fas fa-clipboard-list fa-3x" style="opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-filter"></i> Filters
+            {% if faculty_filter or course_filter or status_filter or from_date or to_date %}
+                <a href="{% url 'faculty_attendance_list' %}" class="btn btn-sm btn-outline-secondary float-end">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="faculty" class="form-label">Faculty</label>
+                <select class="form-select" id="faculty" name="faculty">
+                    <option value="">All Faculty</option>
+                    {% for faculty in faculty_list %}
+                        <option value="{{ faculty.id }}" {% if faculty_filter == faculty.id|stringformat:"s" %}selected{% endif %}>
+                            {{ faculty.first_name }} {{ faculty.last_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="course" class="form-label">Course</label>
+                <select class="form-select" id="course" name="course">
+                    <option value="">All Courses</option>
+                    {% for course in course_list %}
+                        <option value="{{ course.id }}" {% if course_filter == course.id|stringformat:"s" %}selected{% endif %}>
+                            {{ course.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All Status</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="from_date" class="form-label">From Date</label>
+                <input type="date" class="form-control" id="from_date" name="from_date" 
+                       value="{{ from_date|default:'' }}">
+            </div>
+            
+            <div class="col-md-2">
+                <label for="to_date" class="form-label">To Date</label>
+                <input type="date" class="form-control" id="to_date" name="to_date" 
+                       value="{{ to_date|default:'' }}">
+            </div>
+            
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Apply Filters
+                </button>
+                <a href="{% url 'faculty_attendance_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Attendance Records Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Faculty</th>
+                        <th>Course</th>
+                        <th>Scheduled Time</th>
+                        <th>Actual Time</th>
+                        <th>Status</th>
+                        <th>Recorded By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td><strong>{{ record.date|date:"d M Y" }}</strong></td>
+                        <td>{{ record.faculty.first_name }} {{ record.faculty.last_name }}</td>
+                        <td>{{ record.course.name }}</td>
+                        <td>
+                            <small>{{ record.scheduled_start_time|time:"h:i A" }} - {{ record.scheduled_end_time|time:"h:i A" }}</small>
+                        </td>
+                        <td>
+                            {% if record.actual_start_time %}
+                                <small>{{ record.actual_start_time|time:"h:i A" }} - {{ record.actual_end_time|time:"h:i A"|default:"-" }}</small>
+                            {% else %}
+                                <small class="text-muted">Not recorded</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.status == 'present' %}
+                                <span class="badge bg-success">{{ record.get_status_display }}</span>
+                            {% elif record.status == 'absent' %}
+                                <span class="badge bg-danger">{{ record.get_status_display }}</span>
+                            {% elif record.status == 'late' %}
+                                <span class="badge bg-warning">{{ record.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ record.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.recorded_by %}
+                                <small>{{ record.recorded_by.username }}</small>
+                            {% else %}
+                                <small class="text-muted">System</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'faculty_attendance_detail' record.pk %}" class="btn btn-sm btn-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'faculty_attendance_edit' record.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            No attendance records found matching your filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if faculty_filter %}&faculty={{ faculty_filter }}{% endif %}{% if course_filter %}&course={{ course_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if from_date %}&from_date={{ from_date }}{% endif %}{% if to_date %}&to_date={{ to_date }}{% endif %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

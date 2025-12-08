@@ -29,6 +29,7 @@ urlpatterns = [
     path('backup-schedules/', views.backup_schedule_list, name='backup_schedule_list'),
     path('backup-schedules/create/', views.backup_schedule_create, name='backup_schedule_create'),
     path('backup-schedules/<int:pk>/', views.backup_schedule_detail, name='backup_schedule_detail'),
+    path('backup-schedules/<int:pk>/confirm/', views.backup_schedule_confirm, name='backup_schedule_confirm'),
     
     # Faculty Payment URLs
     path('payments/', views.faculty_payment_list, name='faculty_payment_list'),
@@ -40,6 +41,12 @@ urlpatterns = [
     path('exam-requests/create/', views.exam_request_create, name='exam_request_create'),
     path('exam-requests/<int:pk>/', views.exam_request_detail, name='exam_request_detail'),
     path('exam-requests/<int:pk>/approve/', views.exam_request_approve, name='exam_request_approve'),
+    
+    # Faculty Attendance URLs
+    path('attendance/', views.faculty_attendance_list, name='faculty_attendance_list'),
+    path('attendance/create/', views.faculty_attendance_create, name='faculty_attendance_create'),
+    path('attendance/<int:pk>/', views.faculty_attendance_detail, name='faculty_attendance_detail'),
+    path('attendance/<int:pk>/edit/', views.faculty_attendance_edit, name='faculty_attendance_edit'),
     
     # Attendance Report URLs
     path('attendance-report/', views.faculty_attendance_report, name='faculty_attendance_report'),

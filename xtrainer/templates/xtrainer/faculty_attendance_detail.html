@@ -1,0 +1,146 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}Faculty Attendance Details - EduPulse{% endblock %}
+
+{% block header %}Faculty Attendance Details{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'faculty_attendance_edit' attendance.pk %}" class="btn btn-warning">
+    <i class="fas fa-edit"></i> Edit
+</a>
+<a href="{% url 'faculty_attendance_list' %}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Back to List
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Faculty & Course Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Faculty Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th>Faculty Name:</th>
+                        <td><strong>{{ attendance.faculty.first_name }} {{ attendance.faculty.last_name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Faculty ID:</th>
+                        <td>{{ attendance.faculty.faculty_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ attendance.faculty.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone:</th>
+                        <td>{{ attendance.faculty.phone }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Course & Date Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-book"></i> Course Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <th>Course:</th>
+                        <td><strong>{{ attendance.course.name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Course Code:</th>
+                        <td>{{ attendance.course.course_code }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date:</th>
+                        <td><strong>{{ attendance.date|date:"l, F d, Y" }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Time Details -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-clock"></i> Time Details</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Scheduled Time</h6>
+                <p><strong>{{ attendance.scheduled_start_time|time:"h:i A" }} - {{ attendance.scheduled_end_time|time:"h:i A" }}</strong></p>
+                
+                <h6 class="text-muted mt-3">Actual Time</h6>
+                {% if attendance.actual_start_time %}
+                    <p><strong>{{ attendance.actual_start_time|time:"h:i A" }} - {{ attendance.actual_end_time|time:"h:i A"|default:"Ongoing" }}</strong></p>
+                {% else %}
+                    <p class="text-muted">Not recorded</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Status Information</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Attendance Status</h6>
+                <p>
+                    {% if attendance.status == 'present' %}
+                        <span class="badge bg-success" style="font-size: 16px;">{{ attendance.get_status_display }}</span>
+                    {% elif attendance.status == 'absent' %}
+                        <span class="badge bg-danger" style="font-size: 16px;">{{ attendance.get_status_display }}</span>
+                    {% elif attendance.status == 'late' %}
+                        <span class="badge bg-warning" style="font-size: 16px;">{{ attendance.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge bg-info" style="font-size: 16px;">{{ attendance.get_status_display }}</span>
+                    {% endif %}
+                </p>
+                
+                <h6 class="text-muted mt-3">Recorded By</h6>
+                <p>
+                    {% if attendance.recorded_by %}
+                        {{ attendance.recorded_by.username }}
+                    {% else %}
+                        <span class="text-muted">System</span>
+                    {% endif %}
+                </p>
+                
+                <h6 class="text-muted mt-3">Recorded On</h6>
+                <p>{{ attendance.created_at|date:"F d, Y h:i A" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notes -->
+{% if attendance.notes %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notes</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ attendance.notes }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

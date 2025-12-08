@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Class Assignment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+        .details-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .value {
+            color: #333;
+        }
+        .footer {
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            font-size: 12px;
+        }
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 Backup Class Assignment</h1>
+        <p>EduPulse - Faculty Management</p>
+    </div>
+    
+    <div class="content">
+        <div>
+            <p>Dear {{ backup_faculty.first_name }} {{ backup_faculty.last_name }},</p>
+        </div>
+        
+        <p>
+            You have been assigned as a <strong>backup teacher</strong> for the following class:
+        </p>
+        
+        <div class="details-box">
+            <h3 style="margin-top: 0; color: #667eea;">Class Details</h3>
+            
+            <div class="detail-row">
+                <span class="label">Course:</span>
+                <span class="value">{{ backup_schedule.course.name }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Original Faculty:</span>
+                <span class="value">{{ backup_schedule.original_faculty.first_name }} {{ backup_schedule.original_faculty.last_name }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Date:</span>
+                <span class="value">{{ backup_schedule.date|date:"l, F d, Y" }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Time:</span>
+                <span class="value">{{ backup_schedule.start_time|time:"h:i A" }} - {{ backup_schedule.end_time|time:"h:i A" }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="label">Batch/Class:</span>
+                <span class="value">{{ backup_schedule.batch_name }}</span>
+            </div>
+            
+            {% if backup_schedule.room_location %}
+            <div class="detail-row">
+                <span class="label">Room/Location:</span>
+                <span class="value">{{ backup_schedule.room_location }}</span>
+            </div>
+            {% endif %}
+            
+            {% if backup_schedule.notes %}
+            <div class="detail-row">
+                <span class="label">Additional Notes:</span>
+                <span class="value">{{ backup_schedule.notes }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="alert-box">
+            <strong>⚠️ Action Required:</strong> Please confirm your availability for this backup class by contacting the administration office or confirming in the system.
+        </div>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            <strong>Note:</strong> If you have any conflicts or concerns, please notify the administration immediately.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>EduPulse - Faculty Management System</strong></p>
+        <p>This is an automated notification. For questions, contact the administration office.</p>
+        <p>© {{ "now"|date:"Y" }} EduPulse. All rights reserved.</p>
+    </div>
+</body>
+</html>
+

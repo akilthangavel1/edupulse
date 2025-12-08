@@ -25,6 +25,11 @@ from .forms import (
 )
 from xcoursefee.models import Course, StudentEnrollment
 from xstudent.models import NewStudent
+from .email_notifications import (
+    send_all_backup_notifications, send_backup_confirmation_notification,
+    send_backup_reminder_to_faculty, send_backup_reminder_to_students,
+    send_backup_student_notification
+)
 
 
 @login_required
@@ -571,7 +576,19 @@ def backup_schedule_create(request):
             backup_schedule.created_by = request.user
             backup_schedule.save()
             
-            messages.success(request, f'Backup schedule {backup_schedule.schedule_id} has been created successfully!')
+            # Send email notifications
+            notification_results = send_all_backup_notifications(backup_schedule)
+            
+            # Provide feedback based on notification results
+            if notification_results['backup_faculty'] and notification_results['students']:
+                messages.success(request, f'Backup schedule {backup_schedule.schedule_id} created! Email notifications sent to backup faculty and students.')
+            elif notification_results['backup_faculty']:
+                messages.success(request, f'Backup schedule {backup_schedule.schedule_id} created! Email sent to backup faculty. (Student emails may be missing)')
+            elif notification_results['students']:
+                messages.success(request, f'Backup schedule {backup_schedule.schedule_id} created! Email sent to students. (Backup faculty email may be missing)')
+            else:
+                messages.warning(request, f'Backup schedule {backup_schedule.schedule_id} created! However, email notifications could not be sent.')
+            
             return redirect('backup_schedule_detail', pk=backup_schedule.pk)
         else:
             for field, errors in form.errors.items():
@@ -590,8 +607,39 @@ def backup_schedule_detail(request, pk):
     
     context = {
         'backup_schedule': backup_schedule,
+        'can_confirm': backup_schedule.status == 'scheduled' and not backup_schedule.backup_confirmed,
     }
     return render(request, 'xtrainer/backup_schedule_detail.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def backup_schedule_confirm(request, pk):
+    """Confirm backup schedule by backup faculty"""
+    backup_schedule = get_object_or_404(BackupSchedule, pk=pk)
+    
+    if backup_schedule.backup_confirmed:
+        messages.warning(request, 'This backup schedule has already been confirmed.')
+        return redirect('backup_schedule_detail', pk=pk)
+    
+    # Mark as confirmed
+    backup_schedule.backup_confirmed = True
+    backup_schedule.backup_confirmation_date = timezone.now()
+    backup_schedule.status = 'confirmed'
+    backup_schedule.save()
+    
+    # Send confirmation emails
+    faculty_sent = send_backup_confirmation_notification(backup_schedule)
+    students_sent = send_backup_student_notification(backup_schedule)
+    
+    if faculty_sent and students_sent:
+        messages.success(request, f'Backup schedule confirmed! Confirmation emails sent to you and students.')
+    elif faculty_sent:
+        messages.success(request, f'Backup schedule confirmed! Confirmation email sent to you.')
+    else:
+        messages.success(request, f'Backup schedule confirmed!')
+    
+    return redirect('backup_schedule_detail', pk=pk)
 
 
 # Faculty Payment Views
@@ -815,6 +863,125 @@ def exam_request_approve(request, pk):
     
     messages.success(request, f'Exam request {exam_request.request_id} has been approved.')
     return redirect('exam_request_detail', pk=pk)
+
+
+# Faculty Attendance Views
+@login_required
+def faculty_attendance_list(request):
+    """List view for faculty attendance with filters"""
+    queryset = FacultyAttendance.objects.select_related('faculty', 'course', 'recorded_by')
+    
+    # Filters
+    faculty_filter = request.GET.get('faculty')
+    course_filter = request.GET.get('course')
+    status_filter = request.GET.get('status')
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    
+    if faculty_filter:
+        queryset = queryset.filter(faculty_id=faculty_filter)
+    if course_filter:
+        queryset = queryset.filter(course_id=course_filter)
+    if status_filter:
+        queryset = queryset.filter(status=status_filter)
+    if from_date:
+        queryset = queryset.filter(date__gte=from_date)
+    if to_date:
+        queryset = queryset.filter(date__lte=to_date)
+    
+    queryset = queryset.order_by('-date', '-created_at')
+    
+    # Pagination
+    paginator = Paginator(queryset, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    stats = {
+        'total_records': FacultyAttendance.objects.count(),
+        'present_today': FacultyAttendance.objects.filter(date=date.today(), status='present').count(),
+        'absent_today': FacultyAttendance.objects.filter(date=date.today(), status='absent').count(),
+        'late_today': FacultyAttendance.objects.filter(date=date.today(), status='late').count(),
+    }
+    
+    # Filter options
+    faculty_list = Faculty.objects.filter(status='active').order_by('first_name', 'last_name')
+    course_list = Course.objects.filter(status='active').order_by('name')
+    
+    context = {
+        'attendance_records': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'faculty_filter': faculty_filter,
+        'course_filter': course_filter,
+        'status_filter': status_filter,
+        'from_date': from_date,
+        'to_date': to_date,
+        'faculty_list': faculty_list,
+        'course_list': course_list,
+        'status_choices': FacultyAttendance.STATUS_CHOICES,
+        'stats': stats,
+    }
+    return render(request, 'xtrainer/faculty_attendance_list.html', context)
+
+
+@login_required
+def faculty_attendance_create(request):
+    """Create view for faculty attendance"""
+    if request.method == 'POST':
+        form = FacultyAttendanceForm(request.POST)
+        if form.is_valid():
+            attendance = form.save(commit=False)
+            attendance.recorded_by = request.user
+            attendance.save()
+            
+            messages.success(request, f'Faculty attendance recorded successfully for {attendance.faculty.get_full_name()}!')
+            return redirect('faculty_attendance_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = FacultyAttendanceForm()
+        # Set today as default
+        form.fields['date'].initial = date.today()
+    
+    return render(request, 'xtrainer/faculty_attendance_form.html', {'form': form})
+
+
+@login_required
+def faculty_attendance_edit(request, pk):
+    """Edit view for faculty attendance"""
+    attendance = get_object_or_404(FacultyAttendance, pk=pk)
+    
+    if request.method == 'POST':
+        form = FacultyAttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+            attendance = form.save(commit=False)
+            attendance.recorded_by = request.user
+            attendance.save()
+            
+            messages.success(request, f'Faculty attendance updated successfully!')
+            return redirect('faculty_attendance_list')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = FacultyAttendanceForm(instance=attendance)
+    
+    return render(request, 'xtrainer/faculty_attendance_form.html', {'form': form, 'attendance': attendance})
+
+
+@login_required
+def faculty_attendance_detail(request, pk):
+    """Detail view for faculty attendance"""
+    attendance = get_object_or_404(FacultyAttendance, pk=pk)
+    
+    context = {
+        'attendance': attendance,
+    }
+    return render(request, 'xtrainer/faculty_attendance_detail.html', context)
 
 
 # Attendance Report Views

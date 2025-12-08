@@ -1,0 +1,157 @@
+{% extends 'xstudent/base.html' %}
+
+{% block title %}{% if attendance %}Edit{% else %}Record{% endif %} Faculty Attendance - EduPulse{% endblock %}
+
+{% block header %}{% if attendance %}Edit{% else %}Record{% endif %} Faculty Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Please correct the errors below:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.faculty.id_for_label }}" class="form-label">
+                        Faculty <span class="text-danger">*</span>
+                    </label>
+                    {{ form.faculty }}
+                    {% if form.faculty.errors %}
+                        <div class="text-danger">{{ form.faculty.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.course.id_for_label }}" class="form-label">
+                        Course <span class="text-danger">*</span>
+                    </label>
+                    {{ form.course }}
+                    {% if form.course.errors %}
+                        <div class="text-danger">{{ form.course.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.date.id_for_label }}" class="form-label">
+                        Date <span class="text-danger">*</span>
+                    </label>
+                    {{ form.date }}
+                    {% if form.date.errors %}
+                        <div class="text-danger">{{ form.date.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3 bg-light">
+                        <div class="card-header">
+                            <strong>Scheduled Time</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.scheduled_start_time.id_for_label }}" class="form-label">
+                                        Start Time <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.scheduled_start_time }}
+                                    {% if form.scheduled_start_time.errors %}
+                                        <div class="text-danger">{{ form.scheduled_start_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.scheduled_end_time.id_for_label }}" class="form-label">
+                                        End Time <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.scheduled_end_time }}
+                                    {% if form.scheduled_end_time.errors %}
+                                        <div class="text-danger">{{ form.scheduled_end_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-3 bg-light">
+                        <div class="card-header">
+                            <strong>Actual Time</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.actual_start_time.id_for_label }}" class="form-label">
+                                        Start Time
+                                    </label>
+                                    {{ form.actual_start_time }}
+                                    {% if form.actual_start_time.errors %}
+                                        <div class="text-danger">{{ form.actual_start_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.actual_end_time.id_for_label }}" class="form-label">
+                                        End Time
+                                    </label>
+                                    {{ form.actual_end_time }}
+                                    {% if form.actual_end_time.errors %}
+                                        <div class="text-danger">{{ form.actual_end_time.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                        Attendance Status <span class="text-danger">*</span>
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="text-danger">{{ form.status.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.notes.id_for_label }}" class="form-label">
+                    Notes
+                </label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div class="text-danger">{{ form.notes.errors }}</div>
+                {% endif %}
+                <small class="form-text text-muted">Add any additional comments or reasons for late/absent</small>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Attendance
+                </button>
+                <a href="{% url 'faculty_attendance_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
